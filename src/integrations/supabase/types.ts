@@ -14,6 +14,93 @@ export type Database = {
   }
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          preferred_chain: string | null
+          updated_at: string
+          user_id: string
+          wallet_address: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          preferred_chain?: string | null
+          updated_at?: string
+          user_id: string
+          wallet_address?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          preferred_chain?: string | null
+          updated_at?: string
+          user_id?: string
+          wallet_address?: string | null
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          chain: string
+          created_at: string
+          dex_route: string | null
+          from_amount: number
+          from_token_address: string
+          from_token_symbol: string
+          gas_estimate: string | null
+          id: string
+          price_impact: number | null
+          slippage: number | null
+          status: string
+          to_amount: number | null
+          to_token_address: string
+          to_token_symbol: string
+          transaction_hash: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          chain: string
+          created_at?: string
+          dex_route?: string | null
+          from_amount: number
+          from_token_address: string
+          from_token_symbol: string
+          gas_estimate?: string | null
+          id?: string
+          price_impact?: number | null
+          slippage?: number | null
+          status?: string
+          to_amount?: number | null
+          to_token_address: string
+          to_token_symbol: string
+          transaction_hash?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          chain?: string
+          created_at?: string
+          dex_route?: string | null
+          from_amount?: number
+          from_token_address?: string
+          from_token_symbol?: string
+          gas_estimate?: string | null
+          id?: string
+          price_impact?: number | null
+          slippage?: number | null
+          status?: string
+          to_amount?: number | null
+          to_token_address?: string
+          to_token_symbol?: string
+          transaction_hash?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       Volt: {
         Row: {
           created_at: string
