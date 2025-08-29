@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { History as HistoryIcon, ArrowUpRight, ArrowDownLeft } from "lucide-react";
+import { History as HistoryIcon, ArrowUpRight, ArrowDownLeft, ExternalLink } from "lucide-react";
 import { BottomNavigation } from "@/components/BottomNavigation";
 
 interface Transaction {
