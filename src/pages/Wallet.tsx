@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { WalletConnection } from "@/components/WalletConnection";
 import { BottomNavigation } from "@/components/BottomNavigation";
+import { SendInterface } from "@/components/SendInterface";
 import { Eye, EyeOff, Send, Download, Plus, Wallet as WalletIcon, Copy, Check, RefreshCw } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useCryptoPrices } from "@/hooks/useCryptoPrices";
@@ -73,6 +74,8 @@ const walletAccounts = [
 export default function Wallet() {
   const [showBalances, setShowBalances] = useState(true);
   const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
+  const [selectedWalletForSend, setSelectedWalletForSend] = useState<typeof walletAccounts[0] | null>(null);
+  const [showSendInterface, setShowSendInterface] = useState(false);
   const { prices, loading, error, lastUpdated } = useCryptoPrices(30000); // Update every 30 seconds
 
   const copyToClipboard = async (address: string) => {
@@ -83,6 +86,21 @@ export default function Wallet() {
     } catch (err) {
       console.error('Failed to copy: ', err);
     }
+  };
+
+  const handleWalletSelect = (wallet: typeof walletAccounts[0]) => {
+    setSelectedWalletForSend(wallet);
+    setShowSendInterface(true);
+  };
+
+  const handleBackToWalletSelection = () => {
+    setShowSendInterface(false);
+    setSelectedWalletForSend(null);
+  };
+
+  const handleCloseSend = () => {
+    setShowSendInterface(false);
+    setSelectedWalletForSend(null);
   };
 
   // Calculate token balances with real-time prices
@@ -196,49 +214,65 @@ export default function Wallet() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="bottom" className="bg-background border-border">
-                <SheetHeader className="text-left">
-                  <SheetTitle>Send from</SheetTitle>
-                  <SheetDescription>
-                    Choose the wallet to send from
-                  </SheetDescription>
-                </SheetHeader>
-                <div className="mt-6 space-y-2">
-                  {walletAccounts.map((wallet, index) => (
-                    <Card key={`${wallet.chain}-${index}`} className="p-4 bg-card border-border hover:bg-accent cursor-pointer transition-colors">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-2xl">
-                            {wallet.icon}
-                          </div>
-                          <div>
-                            <div className="flex items-center space-x-2">
-                              <p className="font-semibold text-base">{wallet.chain}</p>
-                              {wallet.type && (
-                                <span className="text-sm text-muted-foreground">
-                                  {wallet.type}
-                                </span>
-                              )}
+                {!showSendInterface ? (
+                  <>
+                    <SheetHeader className="text-left">
+                      <SheetTitle>Send from</SheetTitle>
+                      <SheetDescription>
+                        Choose the wallet to send from
+                      </SheetDescription>
+                    </SheetHeader>
+                    <div className="mt-6 space-y-2">
+                      {walletAccounts.map((wallet, index) => (
+                        <Card 
+                          key={`${wallet.chain}-${index}`} 
+                          className="p-4 bg-card border-border hover:bg-accent cursor-pointer transition-colors"
+                          onClick={() => handleWalletSelect(wallet)}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                              <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-2xl">
+                                {wallet.icon}
+                              </div>
+                              <div>
+                                <div className="flex items-center space-x-2">
+                                  <p className="font-semibold text-base">{wallet.chain}</p>
+                                  {wallet.type && (
+                                    <span className="text-sm text-muted-foreground">
+                                      {wallet.type}
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                  {wallet.balance}
+                                </p>
+                              </div>
                             </div>
-                            <p className="text-sm text-muted-foreground">
-                              {wallet.balance}
-                            </p>
+                            <div className="text-right">
+                              <Button variant="ghost" size="sm" className="text-primary">
+                                Select
+                              </Button>
+                            </div>
                           </div>
-                        </div>
-                        <div className="text-right">
-                          <Button variant="ghost" size="sm" className="text-primary">
-                            Select
-                          </Button>
-                        </div>
+                        </Card>
+                      ))}
+                      
+                      <div className="pt-4 border-t border-border mt-6">
+                        <Button variant="ghost" className="w-full justify-center" size="sm">
+                          Close
+                        </Button>
                       </div>
-                    </Card>
-                  ))}
-                  
-                  <div className="pt-4 border-t border-border mt-6">
-                    <Button variant="ghost" className="w-full justify-center" size="sm">
-                      Close
-                    </Button>
-                  </div>
-                </div>
+                    </div>
+                  </>
+                ) : (
+                  selectedWalletForSend && (
+                    <SendInterface
+                      selectedWallet={selectedWalletForSend}
+                      onBack={handleBackToWalletSelection}
+                      onClose={handleCloseSend}
+                    />
+                  )
+                )}
               </SheetContent>
             </Sheet>
 

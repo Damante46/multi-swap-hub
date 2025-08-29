@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowDownUp, Settings } from "lucide-react";
 import { TokenSelector } from "./TokenSelector";
 import { Badge } from "@/components/ui/badge";
+import { useCryptoPrices } from "@/hooks/useCryptoPrices";
 
 export interface Token {
   symbol: string;
@@ -28,6 +29,7 @@ export const SwapInterface = () => {
   const [fromAmount, setFromAmount] = useState("");
   const [toAmount, setToAmount] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { prices } = useCryptoPrices();
 
   const handleSwapTokens = () => {
     const temp = fromToken;
@@ -39,14 +41,41 @@ export const SwapInterface = () => {
 
   const handleFromAmountChange = (value: string) => {
     setFromAmount(value);
-    // Simulate price calculation
+    // Calculate real exchange rate using live prices
     if (value && !isNaN(Number(value))) {
-      const mockRate = 2500; // Example: ETH to USDC rate
-      setToAmount((Number(value) * mockRate).toFixed(2));
+      const fromPrice = prices[fromToken.symbol]?.current_price || 0;
+      const toPrice = prices[toToken.symbol]?.current_price || 0;
+      
+      if (fromPrice && toPrice) {
+        const fromValueUSD = Number(value) * fromPrice;
+        const toAmount = fromValueUSD / toPrice;
+        setToAmount(toAmount.toFixed(6));
+      } else {
+        // Fallback to mock rate if prices not available
+        const mockRate = 2500;
+        setToAmount((Number(value) * mockRate).toFixed(2));
+      }
     } else {
       setToAmount("");
     }
   };
+
+  const exchangeRate = useMemo(() => {
+    const fromPrice = prices[fromToken.symbol]?.current_price || 0;
+    const toPrice = prices[toToken.symbol]?.current_price || 0;
+    
+    if (fromPrice && toPrice) {
+      return fromPrice / toPrice;
+    }
+    return 0;
+  }, [prices, fromToken.symbol, toToken.symbol]);
+
+  const usdValue = useMemo(() => {
+    if (fromAmount && prices[fromToken.symbol]) {
+      return (Number(fromAmount) * prices[fromToken.symbol].current_price).toFixed(2);
+    }
+    return "0.00";
+  }, [fromAmount, prices, fromToken.symbol]);
 
   const handleSwap = async () => {
     setIsLoading(true);
@@ -73,11 +102,14 @@ export const SwapInterface = () => {
           <div className="rounded-xl bg-muted/50 p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-muted-foreground">From</span>
-              {fromToken.balance && (
-                <span className="text-sm text-muted-foreground">
-                  Balance: {fromToken.balance}
-                </span>
-              )}
+              <div className="text-right text-sm text-muted-foreground">
+                {fromToken.balance && (
+                  <div>Balance: {fromToken.balance}</div>
+                )}
+                {fromAmount && (
+                  <div>≈ ${usdValue}</div>
+                )}
+              </div>
             </div>
             <div className="flex items-center space-x-3">
               <TokenSelector
@@ -137,6 +169,12 @@ export const SwapInterface = () => {
           {/* Route Info */}
           {fromAmount && toAmount && (
             <div className="rounded-lg bg-muted/30 p-3 space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Exchange Rate</span>
+                <span>
+                  1 {fromToken.symbol} = {exchangeRate.toFixed(6)} {toToken.symbol}
+                </span>
+              </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Best Route</span>
                 <Badge variant="secondary" className="text-xs">
