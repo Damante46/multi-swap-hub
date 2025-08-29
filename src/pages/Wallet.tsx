@@ -44,36 +44,48 @@ const mockBalances: TokenBalance[] = [{
   positive: false
 }];
 
-const walletAddresses = [
-  {
-    chain: "Ethereum",
-    symbol: "ETH",
-    address: "0x742d35Cc6641C5532c2048d96C3f99b3C2f8e9E2",
-    color: "from-blue-500 to-blue-700"
-  },
-  {
-    chain: "Bitcoin",
-    symbol: "BTC", 
-    address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
-    color: "from-orange-500 to-orange-700"
-  },
+const walletAccounts = [
   {
     chain: "Solana",
     symbol: "SOL",
     address: "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgHkJ",
+    balance: "0.001 SOL",
+    icon: "🔮",
     color: "from-purple-500 to-purple-700"
   },
   {
-    chain: "Polygon",
-    symbol: "MATIC",
-    address: "0x742d35Cc6641C5532c2048d96C3f99b3C2f8e9E2",
-    color: "from-purple-600 to-indigo-600"
+    chain: "Bitcoin",
+    symbol: "BTC",
+    type: "Taproot",
+    address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+    balance: "0 BTC",
+    icon: "₿",
+    color: "from-orange-500 to-orange-700"
   },
   {
-    chain: "Binance Smart Chain",
-    symbol: "BNB",
+    chain: "Bitcoin",
+    symbol: "BTC", 
+    type: "Native Segwit",
+    address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+    balance: "0 BTC",
+    icon: "₿",
+    color: "from-orange-500 to-orange-700"
+  },
+  {
+    chain: "Ethereum",
+    symbol: "ETH",
     address: "0x742d35Cc6641C5532c2048d96C3f99b3C2f8e9E2",
-    color: "from-yellow-500 to-yellow-700"
+    balance: "0 ETH",
+    icon: "⟠",
+    color: "from-blue-500 to-blue-700"
+  },
+  {
+    chain: "Ethereum",
+    symbol: "ETH",
+    address: "0x742d35Cc6641C5532c2048d96C3f99b3C2f8e9E2", 
+    balance: "0 ETH",
+    icon: "⟠",
+    color: "from-blue-500 to-blue-700"
   }
 ];
 
@@ -140,41 +152,47 @@ export default function Wallet() {
               </SheetTrigger>
               <SheetContent side="bottom" className="bg-background border-border">
                 <SheetHeader className="text-left">
-                  <SheetTitle>Send to Address</SheetTitle>
+                  <SheetTitle>Send from</SheetTitle>
                   <SheetDescription>
-                    Select a wallet address to send crypto to
+                    Choose the wallet to send from
                   </SheetDescription>
                 </SheetHeader>
-                <div className="mt-6 space-y-4">
-                  {walletAddresses.map((wallet) => (
-                    <Card key={wallet.chain} className="p-4 bg-gradient-card border-border/50">
+                <div className="mt-6 space-y-2">
+                  {walletAccounts.map((wallet, index) => (
+                    <Card key={`${wallet.chain}-${index}`} className="p-4 bg-card border-border hover:bg-accent cursor-pointer transition-colors">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className={`w-10 h-10 rounded-full bg-gradient-to-r ${wallet.color} flex items-center justify-center text-white font-bold text-sm`}>
-                            {wallet.symbol}
+                        <div className="flex items-center space-x-4">
+                          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-2xl">
+                            {wallet.icon}
                           </div>
                           <div>
-                            <p className="font-semibold">{wallet.chain}</p>
-                            <p className="text-sm text-muted-foreground font-mono">
-                              {wallet.address.slice(0, 8)}...{wallet.address.slice(-6)}
+                            <div className="flex items-center space-x-2">
+                              <p className="font-semibold text-base">{wallet.chain}</p>
+                              {wallet.type && (
+                                <span className="text-sm text-muted-foreground">
+                                  {wallet.type}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              {wallet.balance}
                             </p>
                           </div>
                         </div>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => copyToClipboard(wallet.address)}
-                          className="h-8 w-8"
-                        >
-                          {copiedAddress === wallet.address ? (
-                            <Check className="h-4 w-4 text-success" />
-                          ) : (
-                            <Copy className="h-4 w-4" />
-                          )}
-                        </Button>
+                        <div className="text-right">
+                          <Button variant="ghost" size="sm" className="text-primary">
+                            Select
+                          </Button>
+                        </div>
                       </div>
                     </Card>
                   ))}
+                  
+                  <div className="pt-4 border-t border-border mt-6">
+                    <Button variant="ghost" className="w-full justify-center" size="sm">
+                      Close
+                    </Button>
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>
@@ -194,15 +212,22 @@ export default function Wallet() {
                   </SheetDescription>
                 </SheetHeader>
                 <div className="mt-6 space-y-4">
-                  {walletAddresses.map((wallet) => (
-                    <Card key={wallet.chain} className="p-4 bg-gradient-card border-border/50">
+                  {walletAccounts.map((wallet, index) => (
+                    <Card key={`${wallet.chain}-${index}`} className="p-4 bg-gradient-card border-border/50">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
-                          <div className={`w-10 h-10 rounded-full bg-gradient-to-r ${wallet.color} flex items-center justify-center text-white font-bold text-sm`}>
-                            {wallet.symbol}
+                          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-2xl">
+                            {wallet.icon}
                           </div>
                           <div className="flex-1">
-                            <p className="font-semibold">{wallet.chain}</p>
+                            <div className="flex items-center space-x-2">
+                              <p className="font-semibold">{wallet.chain}</p>
+                              {wallet.type && (
+                                <span className="text-sm text-muted-foreground">
+                                  {wallet.type}
+                                </span>
+                              )}
+                            </div>
                             <p className="text-sm text-muted-foreground font-mono break-all">
                               {wallet.address}
                             </p>
