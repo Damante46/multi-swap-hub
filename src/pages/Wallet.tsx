@@ -4,8 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { WalletConnection } from "@/components/WalletConnection";
 import { BottomNavigation } from "@/components/BottomNavigation";
-import { Eye, EyeOff, Send, Download, Plus, Wallet as WalletIcon, Copy, Check } from "lucide-react";
-import { useState } from "react";
+import { Eye, EyeOff, Send, Download, Plus, Wallet as WalletIcon, Copy, Check, RefreshCw } from "lucide-react";
+import { useState, useMemo } from "react";
+import { useCryptoPrices } from "@/hooks/useCryptoPrices";
 interface TokenBalance {
   symbol: string;
   name: string;
@@ -13,36 +14,16 @@ interface TokenBalance {
   value: string;
   change: string;
   positive: boolean;
+  price: number;
 }
-const mockBalances: TokenBalance[] = [{
-  symbol: "ETH",
-  name: "Ethereum",
-  balance: "2.5",
-  value: "$6,250.00",
-  change: "+2.5%",
-  positive: true
-}, {
-  symbol: "USDC",
-  name: "USD Coin",
-  balance: "1,250.00",
-  value: "$1,250.00",
-  change: "0.0%",
-  positive: true
-}, {
-  symbol: "SOL",
-  name: "Solana",
-  balance: "45.2",
-  value: "$3,164.00",
-  change: "+5.2%",
-  positive: true
-}, {
-  symbol: "USDT",
-  name: "Tether",
-  balance: "890.50",
-  value: "$890.50",
-  change: "-0.1%",
-  positive: false
-}];
+// Static balances - in real app, these would come from wallet API
+const staticBalances = [
+  { symbol: "ETH", balance: "2.5" },
+  { symbol: "USDC", balance: "1,250.00" },
+  { symbol: "SOL", balance: "45.2" },
+  { symbol: "USDT", balance: "890.50" },
+  { symbol: "BTC", balance: "0.05" }
+];
 
 const walletAccounts = [
   {
@@ -92,6 +73,7 @@ const walletAccounts = [
 export default function Wallet() {
   const [showBalances, setShowBalances] = useState(true);
   const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
+  const { prices, loading, error, lastUpdated } = useCryptoPrices(30000); // Update every 30 seconds
 
   const copyToClipboard = async (address: string) => {
     try {
@@ -102,9 +84,59 @@ export default function Wallet() {
       console.error('Failed to copy: ', err);
     }
   };
-  const totalValue = mockBalances.reduce((sum, token) => {
+
+  // Calculate token balances with real-time prices
+  const tokenBalances: TokenBalance[] = useMemo(() => {
+    return staticBalances.map(balance => {
+      const priceData = prices[balance.symbol];
+      if (!priceData) {
+        return {
+          symbol: balance.symbol,
+          name: balance.symbol,
+          balance: balance.balance,
+          value: "$0.00",
+          change: "0.0%",
+          positive: true,
+          price: 0
+        };
+      }
+
+      const balanceNum = parseFloat(balance.balance.replace(',', ''));
+      const value = balanceNum * priceData.current_price;
+      const change = priceData.price_change_percentage_24h;
+
+      return {
+        symbol: balance.symbol,
+        name: priceData.name,
+        balance: balance.balance,
+        value: `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        change: `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`,
+        positive: change >= 0,
+        price: priceData.current_price
+      };
+    });
+  }, [prices]);
+
+  const totalValue = tokenBalances.reduce((sum, token) => {
     return sum + parseFloat(token.value.replace('$', '').replace(',', ''));
   }, 0);
+
+  const portfolioChange = useMemo(() => {
+    if (tokenBalances.length === 0) return 0;
+    
+    // Calculate weighted average of price changes
+    let totalValue = 0;
+    let weightedChange = 0;
+    
+    tokenBalances.forEach(token => {
+      const tokenValue = parseFloat(token.value.replace('$', '').replace(',', ''));
+      const tokenChange = parseFloat(token.change.replace('%', '').replace('+', ''));
+      totalValue += tokenValue;
+      weightedChange += tokenValue * tokenChange;
+    });
+    
+    return totalValue > 0 ? weightedChange / totalValue : 0;
+  }, [tokenBalances]);
   return <div className="min-h-screen pb-20 bg-[#355e72]/[0.31]">
       <div className="max-w-md mx-auto p-4">
         <div className="mb-6">
@@ -124,7 +156,10 @@ export default function Wallet() {
         {/* Portfolio Overview */}
         <Card className="p-6 mb-6 bg-gradient-card border-border/50 shadow-glow">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Portfolio Value</h2>
+            <div className="flex items-center space-x-2">
+              <h2 className="text-lg font-semibold">Portfolio Value</h2>
+              {loading && <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />}
+            </div>
             <Button variant="ghost" size="icon" onClick={() => setShowBalances(!showBalances)}>
               {showBalances ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
             </Button>
@@ -132,14 +167,24 @@ export default function Wallet() {
           
           <div className="text-center mb-6">
             <p className="text-3xl font-bold mb-1">
-              {showBalances ? `$${totalValue.toLocaleString()}` : "••••••"}
+              {showBalances ? `$${totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "••••••"}
             </p>
             <div className="flex items-center justify-center space-x-2">
-              <Badge className="bg-success/10 text-success border-success/20">
-                +12.5%
+              <Badge className={portfolioChange >= 0 ? "bg-success/10 text-success border-success/20" : "bg-destructive/10 text-destructive border-destructive/20"}>
+                {portfolioChange >= 0 ? '+' : ''}{portfolioChange.toFixed(1)}%
               </Badge>
               <span className="text-sm text-muted-foreground">24h</span>
             </div>
+            {lastUpdated && (
+              <p className="text-xs text-muted-foreground mt-2">
+                Last updated: {lastUpdated.toLocaleTimeString()}
+              </p>
+            )}
+            {error && (
+              <p className="text-xs text-destructive mt-2">
+                Error updating prices: {error}
+              </p>
+            )}
           </div>
 
           <div className="grid grid-cols-3 gap-4">
@@ -263,7 +308,7 @@ export default function Wallet() {
         <div className="space-y-3">
           <h3 className="text-lg font-semibold">Your Tokens</h3>
           
-          {mockBalances.map(token => <Card key={token.symbol} className="p-4 bg-gradient-card border-border/50">
+          {tokenBalances.map(token => <Card key={token.symbol} className="p-4 bg-gradient-card border-border/50">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="w-12 h-12 rounded-full bg-gradient-primary flex items-center justify-center text-white font-bold">
@@ -272,6 +317,9 @@ export default function Wallet() {
                   <div>
                     <p className="font-semibold">{token.symbol}</p>
                     <p className="text-sm text-muted-foreground">{token.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      ${showBalances ? token.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 }) : "••••••"}
+                    </p>
                   </div>
                 </div>
                 
@@ -291,7 +339,7 @@ export default function Wallet() {
               </div>
             </Card>)}
 
-          {mockBalances.length === 0 && <Card className="p-8 text-center bg-gradient-card border-border/50">
+          {tokenBalances.length === 0 && <Card className="p-8 text-center bg-gradient-card border-border/50">
               <div className="w-16 h-16 rounded-full bg-muted mx-auto mb-4 flex items-center justify-center">
                 <WalletIcon className="h-8 w-8 text-muted-foreground" />
               </div>
