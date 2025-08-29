@@ -1,9 +1,10 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { WalletConnection } from "@/components/WalletConnection";
 import { BottomNavigation } from "@/components/BottomNavigation";
-import { Eye, EyeOff, Send, Download, Plus, Wallet as WalletIcon } from "lucide-react";
+import { Eye, EyeOff, Send, Download, Plus, Wallet as WalletIcon, Copy, Check } from "lucide-react";
 import { useState } from "react";
 interface TokenBalance {
   symbol: string;
@@ -42,8 +43,53 @@ const mockBalances: TokenBalance[] = [{
   change: "-0.1%",
   positive: false
 }];
+
+const walletAddresses = [
+  {
+    chain: "Ethereum",
+    symbol: "ETH",
+    address: "0x742d35Cc6641C5532c2048d96C3f99b3C2f8e9E2",
+    color: "from-blue-500 to-blue-700"
+  },
+  {
+    chain: "Bitcoin",
+    symbol: "BTC", 
+    address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+    color: "from-orange-500 to-orange-700"
+  },
+  {
+    chain: "Solana",
+    symbol: "SOL",
+    address: "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgHkJ",
+    color: "from-purple-500 to-purple-700"
+  },
+  {
+    chain: "Polygon",
+    symbol: "MATIC",
+    address: "0x742d35Cc6641C5532c2048d96C3f99b3C2f8e9E2",
+    color: "from-purple-600 to-indigo-600"
+  },
+  {
+    chain: "Binance Smart Chain",
+    symbol: "BNB",
+    address: "0x742d35Cc6641C5532c2048d96C3f99b3C2f8e9E2",
+    color: "from-yellow-500 to-yellow-700"
+  }
+];
+
 export default function Wallet() {
   const [showBalances, setShowBalances] = useState(true);
+  const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
+
+  const copyToClipboard = async (address: string) => {
+    try {
+      await navigator.clipboard.writeText(address);
+      setCopiedAddress(address);
+      setTimeout(() => setCopiedAddress(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy: ', err);
+    }
+  };
   const totalValue = mockBalances.reduce((sum, token) => {
     return sum + parseFloat(token.value.replace('$', '').replace(',', ''));
   }, 0);
@@ -85,14 +131,102 @@ export default function Wallet() {
           </div>
 
           <div className="grid grid-cols-3 gap-4">
-            <Button variant="outline" className="flex flex-col h-16">
-              <Send className="h-5 w-5 mb-1" />
-              <span className="text-xs">Send</span>
-            </Button>
-            <Button variant="outline" className="flex flex-col h-16">
-              <Download className="h-5 w-5 mb-1" />
-              <span className="text-xs">Receive</span>
-            </Button>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" className="flex flex-col h-16">
+                  <Send className="h-5 w-5 mb-1" />
+                  <span className="text-xs">Send</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="bg-background border-border">
+                <SheetHeader className="text-left">
+                  <SheetTitle>Send to Address</SheetTitle>
+                  <SheetDescription>
+                    Select a wallet address to send crypto to
+                  </SheetDescription>
+                </SheetHeader>
+                <div className="mt-6 space-y-4">
+                  {walletAddresses.map((wallet) => (
+                    <Card key={wallet.chain} className="p-4 bg-gradient-card border-border/50">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-10 h-10 rounded-full bg-gradient-to-r ${wallet.color} flex items-center justify-center text-white font-bold text-sm`}>
+                            {wallet.symbol}
+                          </div>
+                          <div>
+                            <p className="font-semibold">{wallet.chain}</p>
+                            <p className="text-sm text-muted-foreground font-mono">
+                              {wallet.address.slice(0, 8)}...{wallet.address.slice(-6)}
+                            </p>
+                          </div>
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => copyToClipboard(wallet.address)}
+                          className="h-8 w-8"
+                        >
+                          {copiedAddress === wallet.address ? (
+                            <Check className="h-4 w-4 text-success" />
+                          ) : (
+                            <Copy className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </SheetContent>
+            </Sheet>
+
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" className="flex flex-col h-16">
+                  <Download className="h-5 w-5 mb-1" />
+                  <span className="text-xs">Receive</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="bg-background border-border">
+                <SheetHeader className="text-left">
+                  <SheetTitle>Receive Address</SheetTitle>
+                  <SheetDescription>
+                    Your wallet addresses for receiving crypto
+                  </SheetDescription>
+                </SheetHeader>
+                <div className="mt-6 space-y-4">
+                  {walletAddresses.map((wallet) => (
+                    <Card key={wallet.chain} className="p-4 bg-gradient-card border-border/50">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-10 h-10 rounded-full bg-gradient-to-r ${wallet.color} flex items-center justify-center text-white font-bold text-sm`}>
+                            {wallet.symbol}
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-semibold">{wallet.chain}</p>
+                            <p className="text-sm text-muted-foreground font-mono break-all">
+                              {wallet.address}
+                            </p>
+                          </div>
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => copyToClipboard(wallet.address)}
+                          className="h-8 w-8 flex-shrink-0"
+                        >
+                          {copiedAddress === wallet.address ? (
+                            <Check className="h-4 w-4 text-success" />
+                          ) : (
+                            <Copy className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </SheetContent>
+            </Sheet>
+
             <Button variant="outline" className="flex flex-col h-16">
               <Plus className="h-5 w-5 mb-1" />
               <span className="text-xs">Buy</span>
