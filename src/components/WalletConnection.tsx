@@ -3,8 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
 import { Wallet, Copy, ExternalLink, LogOut } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { WalletCreation } from "./WalletCreation";
+import { supabase } from "@/integrations/supabase/client";
+import type { GeneratedWallet } from "@/utils/walletGeneration";
 interface WalletInfo {
   address: string;
   chain: string;
@@ -28,14 +32,38 @@ export const WalletConnection = () => {
   const [wallet, setWallet] = useState<WalletInfo | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const {
-    toast
-  } = useToast();
+  const [createdWallets, setCreatedWallets] = useState<GeneratedWallet[]>([]);
+  const { toast } = useToast();
 
   // Check for existing wallet connection on mount
   useEffect(() => {
     checkWalletConnection();
+    checkUserProfile();
   }, []);
+
+  const checkUserProfile = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('wallet_address, preferred_chain')
+          .eq('user_id', user.id)
+          .single();
+
+        if (profile?.wallet_address) {
+          setWallet({
+            address: profile.wallet_address,
+            chain: profile.preferred_chain || 'Ethereum',
+            balance: '0.0 ETH', // This would be fetched from blockchain
+            connected: true
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to check user profile:', error);
+    }
+  };
   const checkWalletConnection = async () => {
     // Check if MetaMask is connected
     if (typeof window !== 'undefined' && window.ethereum) {
@@ -132,6 +160,20 @@ export const WalletConnection = () => {
   const formatAddress = (address: string) => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
+
+  const handleWalletCreated = (wallets: GeneratedWallet[]) => {
+    setCreatedWallets(wallets);
+    const ethereumWallet = wallets.find(w => w.chain === 'Ethereum');
+    if (ethereumWallet) {
+      setWallet({
+        address: ethereumWallet.address,
+        chain: 'Ethereum',
+        balance: '0.0 ETH',
+        connected: true
+      });
+    }
+    setIsDialogOpen(false);
+  };
   if (wallet?.connected) {
     return <Card className="p-4 bg-gradient-card border-border/50">
         <div className="flex items-center justify-between">
@@ -177,18 +219,35 @@ export const WalletConnection = () => {
           <DialogTitle>Connect Wallet</DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-3">
-          {SUPPORTED_WALLETS.map(walletOption => <Button key={walletOption.name} variant="outline" onClick={() => connectWallet(walletOption.name)} disabled={isConnecting} className="w-full h-16 justify-start hover:bg-muted/50">
-              <div className="flex items-center space-x-3">
-                <span className="text-2xl">{walletOption.icon}</span>
-                <div className="text-left">
-                  <p className="font-semibold">{walletOption.name}</p>
-                  <p className="text-sm text-muted-foreground capitalize">
-                    {walletOption.type} wallet
-                  </p>
+        <div className="space-y-4">
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-muted-foreground">Connect Existing Wallet</h3>
+            {SUPPORTED_WALLETS.map(walletOption => (
+              <Button 
+                key={walletOption.name} 
+                variant="outline" 
+                onClick={() => connectWallet(walletOption.name)} 
+                disabled={isConnecting} 
+                className="w-full h-16 justify-start hover:bg-muted/50"
+              >
+                <div className="flex items-center space-x-3">
+                  <span className="text-2xl">{walletOption.icon}</span>
+                  <div className="text-left">
+                    <p className="font-semibold">{walletOption.name}</p>
+                    <p className="text-sm text-muted-foreground capitalize">
+                      {walletOption.type} wallet
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </Button>)}
+              </Button>
+            ))}
+          </div>
+
+          <div className="space-y-3">
+            <Separator />
+            <h3 className="text-sm font-semibold text-muted-foreground">New to Crypto?</h3>
+            <WalletCreation onWalletCreated={handleWalletCreated} />
+          </div>
         </div>
         
         <p className="text-xs text-muted-foreground text-center mt-4">
