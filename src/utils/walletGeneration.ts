@@ -6,6 +6,11 @@ import { BIP32Factory } from 'bip32';
 import * as ecc from 'tiny-secp256k1';
 import { Buffer } from 'buffer';
 
+// Make Buffer available globally
+if (typeof globalThis.Buffer === 'undefined') {
+  globalThis.Buffer = Buffer;
+}
+
 // Initialize BIP32 with tiny-secp256k1
 const bip32 = BIP32Factory(ecc);
 
