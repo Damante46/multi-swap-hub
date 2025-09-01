@@ -39,7 +39,9 @@ export const WalletCreation = ({ onWalletCreated }: WalletCreationProps) => {
   const handleCreateWallet = async () => {
     setIsCreating(true);
     try {
+      console.log('Starting wallet creation...');
       const result = generateAllWallets();
+      console.log('Wallets generated successfully:', result);
       setGeneratedWallets(result.wallets);
       setMnemonic(result.mnemonic);
       setActiveStep('backup');
@@ -49,9 +51,10 @@ export const WalletCreation = ({ onWalletCreated }: WalletCreationProps) => {
         description: "Your new wallets have been created successfully"
       });
     } catch (error) {
+      console.error('Wallet creation error:', error);
       toast({
         title: "Creation Failed",
-        description: "Failed to create wallets. Please try again.",
+        description: `Failed to create wallets: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive"
       });
     } finally {

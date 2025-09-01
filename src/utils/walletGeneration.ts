@@ -1,6 +1,6 @@
 import * as bip39 from 'bip39';
 import { ethers } from 'ethers';
-import { Connection, Keypair, PublicKey } from '@solana/web3.js';
+import { Keypair } from '@solana/web3.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import { BIP32Factory } from 'bip32';
 import * as ecc from 'tiny-secp256k1';
@@ -11,8 +11,15 @@ if (typeof globalThis.Buffer === 'undefined') {
   globalThis.Buffer = Buffer;
 }
 
-// Initialize BIP32 with tiny-secp256k1
-const bip32 = BIP32Factory(ecc);
+// Initialize BIP32 with tiny-secp256k1 with error handling
+let bip32: any;
+try {
+  bip32 = BIP32Factory(ecc);
+  console.log('BIP32 initialized successfully');
+} catch (error) {
+  console.error('BIP32 initialization failed:', error);
+  throw new Error('Failed to initialize BIP32 factory');
+}
 
 export interface GeneratedWallet {
   address: string;
@@ -29,96 +36,175 @@ export interface WalletCreationResult {
 }
 
 export const generateMnemonic = (): string => {
-  return bip39.generateMnemonic();
+  try {
+    console.log('Generating mnemonic...');
+    const mnemonic = bip39.generateMnemonic();
+    console.log('Mnemonic generated successfully');
+    return mnemonic;
+  } catch (error) {
+    console.error('Failed to generate mnemonic:', error);
+    throw new Error(`Mnemonic generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
 };
 
 export const generateEthereumWallet = (mnemonic: string): GeneratedWallet => {
-  const wallet = ethers.Wallet.fromPhrase(mnemonic);
-  
-  return {
-    address: wallet.address,
-    privateKey: wallet.privateKey,
-    publicKey: wallet.publicKey,
-    mnemonic,
-    chain: 'Ethereum'
-  };
+  try {
+    console.log('Generating Ethereum wallet...');
+    const wallet = ethers.Wallet.fromPhrase(mnemonic);
+    console.log('Ethereum wallet generated successfully');
+    
+    return {
+      address: wallet.address,
+      privateKey: wallet.privateKey,
+      publicKey: wallet.publicKey,
+      mnemonic,
+      chain: 'Ethereum'
+    };
+  } catch (error) {
+    console.error('Failed to generate Ethereum wallet:', error);
+    throw new Error(`Ethereum wallet generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
 };
 
 export const generateSolanaWallet = (mnemonic: string): GeneratedWallet => {
-  const seed = bip39.mnemonicToSeedSync(mnemonic);
-  const keypair = Keypair.fromSeed(seed.slice(0, 32));
-  
-  return {
-    address: keypair.publicKey.toString(),
-    privateKey: Buffer.from(keypair.secretKey).toString('hex'),
-    publicKey: keypair.publicKey.toString(),
-    mnemonic,
-    chain: 'Solana'
-  };
+  try {
+    console.log('Generating Solana wallet...');
+    const seed = bip39.mnemonicToSeedSync(mnemonic);
+    const keypair = Keypair.fromSeed(seed.slice(0, 32));
+    console.log('Solana wallet generated successfully');
+    
+    return {
+      address: keypair.publicKey.toString(),
+      privateKey: Buffer.from(keypair.secretKey).toString('hex'),
+      publicKey: keypair.publicKey.toString(),
+      mnemonic,
+      chain: 'Solana'
+    };
+  } catch (error) {
+    console.error('Failed to generate Solana wallet:', error);
+    throw new Error(`Solana wallet generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
 };
 
 export const generateBitcoinWallet = (mnemonic: string, type: 'taproot' | 'segwit' = 'segwit'): GeneratedWallet => {
-  const seed = bip39.mnemonicToSeedSync(mnemonic);
-  const root = bip32.fromSeed(seed);
-  
-  let path: string;
-  let addressType: string;
-  
-  if (type === 'taproot') {
-    path = "m/86'/0'/0'/0/0"; // BIP86 for Taproot
-    addressType = 'Taproot';
-  } else {
-    path = "m/84'/0'/0'/0/0"; // BIP84 for Native SegWit
-    addressType = 'Native Segwit';
+  try {
+    console.log(`Generating Bitcoin ${type} wallet...`);
+    
+    if (!bip32) {
+      throw new Error('BIP32 not initialized');
+    }
+    
+    const seed = bip39.mnemonicToSeedSync(mnemonic);
+    const root = bip32.fromSeed(seed);
+    
+    let path: string;
+    let addressType: string;
+    
+    if (type === 'taproot') {
+      path = "m/86'/0'/0'/0/0"; // BIP86 for Taproot
+      addressType = 'Taproot';
+    } else {
+      path = "m/84'/0'/0'/0/0"; // BIP84 for Native SegWit
+      addressType = 'Native Segwit';
+    }
+    
+    const child = root.derivePath(path);
+    const privateKey = child.privateKey;
+    const publicKey = child.publicKey;
+    
+    if (!privateKey || !publicKey) {
+      throw new Error('Failed to derive key pair');
+    }
+    
+    let address: string;
+    
+    if (type === 'taproot') {
+      // Generate Taproot address (P2TR)
+      const internalKey = Buffer.from(publicKey).slice(1, 33); // Remove first byte for taproot
+      const { address: taprootAddress } = bitcoin.payments.p2tr({
+        internalPubkey: internalKey,
+        network: bitcoin.networks.bitcoin
+      });
+      
+      if (!taprootAddress) {
+        throw new Error('Failed to generate Taproot address');
+      }
+      address = taprootAddress;
+    } else {
+      // Generate Native SegWit address (P2WPKH)
+      const { address: segwitAddress } = bitcoin.payments.p2wpkh({
+        pubkey: Buffer.from(publicKey),
+        network: bitcoin.networks.bitcoin
+      });
+      
+      if (!segwitAddress) {
+        throw new Error('Failed to generate SegWit address');
+      }
+      address = segwitAddress;
+    }
+    
+    console.log(`Bitcoin ${type} wallet generated successfully`);
+    
+    return {
+      address,
+      privateKey: Buffer.from(privateKey).toString('hex'),
+      publicKey: Buffer.from(publicKey).toString('hex'),
+      mnemonic,
+      chain: 'Bitcoin',
+      type: addressType
+    };
+  } catch (error) {
+    console.error(`Failed to generate Bitcoin ${type} wallet:`, error);
+    throw new Error(`Bitcoin ${type} wallet generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
-  
-  const child = root.derivePath(path);
-  const privateKey = child.privateKey;
-  const publicKey = child.publicKey;
-  
-  let address: string;
-  
-  if (type === 'taproot' && publicKey) {
-    // Generate Taproot address (P2TR)
-    const internalKey = Buffer.from(publicKey).slice(1, 33); // Remove first byte for taproot
-    const { address: taprootAddress } = bitcoin.payments.p2tr({
-      internalPubkey: internalKey,
-      network: bitcoin.networks.bitcoin
-    });
-    address = taprootAddress!;
-  } else {
-    // Generate Native SegWit address (P2WPKH)
-    const { address: segwitAddress } = bitcoin.payments.p2wpkh({
-      pubkey: Buffer.from(publicKey!),
-      network: bitcoin.networks.bitcoin
-    });
-    address = segwitAddress!;
-  }
-  
-  return {
-    address,
-    privateKey: privateKey ? Buffer.from(privateKey).toString('hex') : '',
-    publicKey: publicKey ? Buffer.from(publicKey).toString('hex') : '',
-    mnemonic,
-    chain: 'Bitcoin',
-    type: addressType
-  };
 };
 
 export const generateAllWallets = (): WalletCreationResult => {
-  const mnemonic = generateMnemonic();
-  
-  const wallets: GeneratedWallet[] = [
-    generateEthereumWallet(mnemonic),
-    generateSolanaWallet(mnemonic),
-    generateBitcoinWallet(mnemonic, 'segwit'),
-    generateBitcoinWallet(mnemonic, 'taproot')
-  ];
-  
-  return {
-    wallets,
-    mnemonic
-  };
+  try {
+    console.log('Starting wallet generation process...');
+    const mnemonic = generateMnemonic();
+    
+    const wallets: GeneratedWallet[] = [];
+    
+    // Generate each wallet type with individual error handling
+    try {
+      wallets.push(generateEthereumWallet(mnemonic));
+    } catch (error) {
+      console.error('Ethereum wallet generation failed, continuing...', error);
+    }
+    
+    try {
+      wallets.push(generateSolanaWallet(mnemonic));
+    } catch (error) {
+      console.error('Solana wallet generation failed, continuing...', error);
+    }
+    
+    try {
+      wallets.push(generateBitcoinWallet(mnemonic, 'segwit'));
+    } catch (error) {
+      console.error('Bitcoin SegWit wallet generation failed, continuing...', error);
+    }
+    
+    try {
+      wallets.push(generateBitcoinWallet(mnemonic, 'taproot'));
+    } catch (error) {
+      console.error('Bitcoin Taproot wallet generation failed, continuing...', error);
+    }
+    
+    if (wallets.length === 0) {
+      throw new Error('Failed to generate any wallets');
+    }
+    
+    console.log(`Successfully generated ${wallets.length} wallets`);
+    
+    return {
+      wallets,
+      mnemonic
+    };
+  } catch (error) {
+    console.error('Wallet generation process failed:', error);
+    throw new Error(`Wallet generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
 };
 
 export const validateMnemonic = (mnemonic: string): boolean => {
