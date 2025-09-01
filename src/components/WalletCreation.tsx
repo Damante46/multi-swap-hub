@@ -30,6 +30,9 @@ export const WalletCreation = ({ onWalletCreated }: WalletCreationProps) => {
   const getWalletIcon = (chain: string) => {
     switch (chain) {
       case 'Ethereum': return '⟠';
+      case 'Polygon': return '🟣';
+      case 'BNB Smart Chain': return '🟡';
+      case 'Avalanche': return '🔺';
       case 'Solana': return '🔮';
       case 'Bitcoin': return '₿';
       default: return '💼';
@@ -166,7 +169,7 @@ export const WalletCreation = ({ onWalletCreated }: WalletCreationProps) => {
         </Button>
       </DialogTrigger>
       
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create New Wallet</DialogTitle>
         </DialogHeader>
@@ -202,6 +205,33 @@ export const WalletCreation = ({ onWalletCreated }: WalletCreationProps) => {
                     <div>
                       <p className="font-medium">Ethereum</p>
                       <p className="text-xs text-muted-foreground">ETH, USDC, ERC-20</p>
+                    </div>
+                  </div>
+                </Card>
+                <Card className="p-3">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xl">🟣</span>
+                    <div>
+                      <p className="font-medium">Polygon</p>
+                      <p className="text-xs text-muted-foreground">MATIC, USDC</p>
+                    </div>
+                  </div>
+                </Card>
+                <Card className="p-3">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xl">🟡</span>
+                    <div>
+                      <p className="font-medium">BNB Smart Chain</p>
+                      <p className="text-xs text-muted-foreground">BNB, BEP-20</p>
+                    </div>
+                  </div>
+                </Card>
+                <Card className="p-3">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xl">🔺</span>
+                    <div>
+                      <p className="font-medium">Avalanche</p>
+                      <p className="text-xs text-muted-foreground">AVAX, C-Chain</p>
                     </div>
                   </div>
                 </Card>

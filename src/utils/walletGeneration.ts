@@ -159,6 +159,63 @@ export const generateBitcoinWallet = (mnemonic: string, type: 'taproot' | 'segwi
   }
 };
 
+export const generatePolygonWallet = (mnemonic: string): GeneratedWallet => {
+  try {
+    console.log('Generating Polygon wallet...');
+    const wallet = ethers.Wallet.fromPhrase(mnemonic);
+    console.log('Polygon wallet generated successfully');
+    
+    return {
+      address: wallet.address,
+      privateKey: wallet.privateKey,
+      publicKey: wallet.publicKey,
+      mnemonic,
+      chain: 'Polygon'
+    };
+  } catch (error) {
+    console.error('Failed to generate Polygon wallet:', error);
+    throw new Error(`Polygon wallet generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
+export const generateBSCWallet = (mnemonic: string): GeneratedWallet => {
+  try {
+    console.log('Generating BSC wallet...');
+    const wallet = ethers.Wallet.fromPhrase(mnemonic);
+    console.log('BSC wallet generated successfully');
+    
+    return {
+      address: wallet.address,
+      privateKey: wallet.privateKey,
+      publicKey: wallet.publicKey,
+      mnemonic,
+      chain: 'BNB Smart Chain'
+    };
+  } catch (error) {
+    console.error('Failed to generate BSC wallet:', error);
+    throw new Error(`BSC wallet generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
+export const generateAvalancheWallet = (mnemonic: string): GeneratedWallet => {
+  try {
+    console.log('Generating Avalanche wallet...');
+    const wallet = ethers.Wallet.fromPhrase(mnemonic);
+    console.log('Avalanche wallet generated successfully');
+    
+    return {
+      address: wallet.address,
+      privateKey: wallet.privateKey,
+      publicKey: wallet.publicKey,
+      mnemonic,
+      chain: 'Avalanche'
+    };
+  } catch (error) {
+    console.error('Failed to generate Avalanche wallet:', error);
+    throw new Error(`Avalanche wallet generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
 export const generateAllWallets = (): WalletCreationResult => {
   try {
     console.log('Starting wallet generation process...');
@@ -171,6 +228,24 @@ export const generateAllWallets = (): WalletCreationResult => {
       wallets.push(generateEthereumWallet(mnemonic));
     } catch (error) {
       console.error('Ethereum wallet generation failed, continuing...', error);
+    }
+    
+    try {
+      wallets.push(generatePolygonWallet(mnemonic));
+    } catch (error) {
+      console.error('Polygon wallet generation failed, continuing...', error);
+    }
+    
+    try {
+      wallets.push(generateBSCWallet(mnemonic));
+    } catch (error) {
+      console.error('BSC wallet generation failed, continuing...', error);
+    }
+    
+    try {
+      wallets.push(generateAvalancheWallet(mnemonic));
+    } catch (error) {
+      console.error('Avalanche wallet generation failed, continuing...', error);
     }
     
     try {
