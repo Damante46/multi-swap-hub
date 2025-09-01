@@ -24,6 +24,8 @@ export const WalletCreation = ({ onWalletCreated }: WalletCreationProps) => {
   const [mnemonic, setMnemonic] = useState('');
   const [showMnemonic, setShowMnemonic] = useState(false);
   const [verificationPhrase, setVerificationPhrase] = useState('');
+  const [randomWordIndices, setRandomWordIndices] = useState<number[]>([]);
+  const [verificationWords, setVerificationWords] = useState<string[]>(['', '', '']);
   const [copiedItems, setCopiedItems] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
@@ -137,15 +139,31 @@ export const WalletCreation = ({ onWalletCreated }: WalletCreationProps) => {
   };
 
   const handleVerifyPhrase = () => {
-    if (verificationPhrase.trim() === mnemonic) {
+    const mnemonicWords = mnemonic.split(' ');
+    const isValid = randomWordIndices.every((index, i) => 
+      verificationWords[i].trim().toLowerCase() === mnemonicWords[index].toLowerCase()
+    );
+    
+    if (isValid) {
       handleSaveWallets();
     } else {
       toast({
         title: "Verification Failed",
-        description: "The recovery phrase doesn't match. Please try again.",
+        description: "One or more words don't match. Please try again.",
         variant: "destructive"
       });
     }
+  };
+
+  const generateRandomWordIndices = () => {
+    const indices = [];
+    while (indices.length < 3) {
+      const randomIndex = Math.floor(Math.random() * 12);
+      if (!indices.includes(randomIndex)) {
+        indices.push(randomIndex);
+      }
+    }
+    return indices.sort((a, b) => a - b);
   };
 
   const resetState = () => {
@@ -154,6 +172,8 @@ export const WalletCreation = ({ onWalletCreated }: WalletCreationProps) => {
     setMnemonic('');
     setShowMnemonic(false);
     setVerificationPhrase('');
+    setRandomWordIndices([]);
+    setVerificationWords(['', '', '']);
     setCopiedItems(new Set());
   };
 
@@ -358,7 +378,12 @@ export const WalletCreation = ({ onWalletCreated }: WalletCreationProps) => {
             </div>
             
             <Button 
-              onClick={() => setActiveStep('verify')}
+              onClick={() => {
+                const indices = generateRandomWordIndices();
+                setRandomWordIndices(indices);
+                setVerificationWords(['', '', '']);
+                setActiveStep('verify');
+              }}
               className="w-full"
             >
               I've Backed Up My Recovery Phrase
@@ -369,19 +394,32 @@ export const WalletCreation = ({ onWalletCreated }: WalletCreationProps) => {
             <Alert>
               <Shield className="h-4 w-4" />
               <AlertDescription>
-                Please enter your recovery phrase to verify you've backed it up correctly.
+                Please enter the requested words from your recovery phrase to verify you've backed it up correctly.
               </AlertDescription>
             </Alert>
             
-            <div className="space-y-3">
-              <Label htmlFor="verify-phrase">Enter your recovery phrase</Label>
-              <Input
-                id="verify-phrase"
-                placeholder="Enter all 12 words separated by spaces"
-                value={verificationPhrase}
-                onChange={(e) => setVerificationPhrase(e.target.value)}
-                className="font-mono"
-              />
+            <div className="space-y-4">
+              <Label>Enter the following words from your recovery phrase:</Label>
+              <div className="space-y-3">
+                {randomWordIndices.map((wordIndex, i) => (
+                  <div key={wordIndex} className="space-y-2">
+                    <Label htmlFor={`word-${i}`}>
+                      Word #{wordIndex + 1}
+                    </Label>
+                    <Input
+                      id={`word-${i}`}
+                      placeholder={`Enter word #${wordIndex + 1}`}
+                      value={verificationWords[i]}
+                      onChange={(e) => {
+                        const newWords = [...verificationWords];
+                        newWords[i] = e.target.value;
+                        setVerificationWords(newWords);
+                      }}
+                      className="font-mono"
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
             
             <div className="flex space-x-3">
@@ -394,7 +432,7 @@ export const WalletCreation = ({ onWalletCreated }: WalletCreationProps) => {
               </Button>
               <Button 
                 onClick={handleVerifyPhrase}
-                disabled={!verificationPhrase.trim()}
+                disabled={verificationWords.some(word => !word.trim())}
                 className="flex-1 bg-gradient-primary hover:opacity-90"
               >
                 Verify & Save Wallets
