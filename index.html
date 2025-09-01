@@ -27,7 +27,7 @@
       
       // Buffer polyfill for crypto extensions
       if (typeof Buffer === 'undefined') {
-        // Simple Buffer polyfill that extensions expect
+        // More complete Buffer polyfill that crypto libraries expect
         globalThis.Buffer = {
           from: function(data, encoding) {
             if (typeof data === 'string') {
@@ -38,8 +38,27 @@
           isBuffer: function(obj) {
             return obj && typeof obj === 'object' && obj.constructor && obj.constructor.name === 'Buffer';
           },
-          alloc: function(size) {
+          alloc: function(size, fill) {
+            const buf = new Uint8Array(size);
+            if (fill !== undefined) {
+              buf.fill(fill);
+            }
+            return buf;
+          },
+          allocUnsafe: function(size) {
             return new Uint8Array(size);
+          },
+          concat: function(buffers, totalLength) {
+            if (totalLength === undefined) {
+              totalLength = buffers.reduce((sum, buf) => sum + buf.length, 0);
+            }
+            const result = new Uint8Array(totalLength);
+            let offset = 0;
+            for (const buf of buffers) {
+              result.set(buf, offset);
+              offset += buf.length;
+            }
+            return result;
           }
         };
         
