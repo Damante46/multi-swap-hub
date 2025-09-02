@@ -15,21 +15,27 @@ import {
   ExternalLink
 } from "lucide-react";
 import { useState } from "react";
+import { useTheme } from "next-themes";
 
 export default function Settings() {
-  const [darkMode, setDarkMode] = useState(false);
+  const { theme, setTheme } = useTheme();
   const [notifications, setNotifications] = useState(true);
   const [autoSlippage, setAutoSlippage] = useState(true);
+  
+  const isDarkMode = theme === 'dark';
 
   const settingsSections = [
     {
       title: "Appearance",
       items: [
         {
-          icon: darkMode ? Moon : Sun,
+          icon: isDarkMode ? Moon : Sun,
           label: "Dark Mode",
           description: "Toggle dark/light theme",
-          action: <Switch checked={darkMode} onCheckedChange={setDarkMode} />
+          action: <Switch 
+            checked={isDarkMode} 
+            onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')} 
+          />
         }
       ]
     },
