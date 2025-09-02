@@ -25,6 +25,23 @@
         var global = globalThis;
       }
       
+      // Process polyfill for crypto extensions
+      if (typeof process === 'undefined') {
+        globalThis.process = {
+          env: {},
+          version: '',
+          versions: {},
+          platform: 'browser',
+          browser: true,
+          nextTick: function(callback) {
+            setTimeout(callback, 0);
+          }
+        };
+        if (typeof window !== 'undefined') {
+          window.process = globalThis.process;
+        }
+      }
+      
       // Buffer polyfill for crypto extensions
       if (typeof Buffer === 'undefined') {
         // More complete Buffer polyfill that crypto libraries expect
