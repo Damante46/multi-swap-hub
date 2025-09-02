@@ -20,83 +20,174 @@
   <body>
     <div id="root"></div>
     <script>
-      // Early polyfills before any modules load - must run before extension scripts
-      if (typeof global === 'undefined') {
-        var global = globalThis;
-      }
-      
-      // Process polyfill for crypto extensions
-      if (typeof process === 'undefined') {
-        globalThis.process = {
-          env: {},
-          version: '',
-          versions: {},
-          platform: 'browser',
-          browser: true,
-          nextTick: function(callback) {
-            setTimeout(callback, 0);
-          }
-        };
-        if (typeof window !== 'undefined') {
+      // Critical polyfills - must run before ANY extension scripts
+      (function() {
+        'use strict';
+        
+        // Global namespace polyfill
+        if (typeof global === 'undefined') {
+          var global = globalThis;
+        }
+        
+        // Enhanced process polyfill for crypto extensions
+        if (typeof globalThis.process === 'undefined') {
+          globalThis.process = {
+            env: {},
+            version: '16.0.0',
+            versions: { node: '16.0.0' },
+            platform: 'browser',
+            browser: true,
+            nextTick: function(callback) {
+              setTimeout(callback, 0);
+            },
+            cwd: function() { return '/'; },
+            chdir: function() {},
+            exit: function() {},
+            argv: [],
+            pid: 1
+          };
+        }
+        if (typeof window !== 'undefined' && typeof window.process === 'undefined') {
           window.process = globalThis.process;
         }
-      }
-      
-      // Service Worker polyfill for wallet extensions
-      if (typeof navigator !== 'undefined' && !navigator.serviceWorker) {
-        navigator.serviceWorker = {
-          register: function() {
-            return Promise.resolve({
+        
+        // Comprehensive Service Worker polyfill for wallet extensions
+        if (typeof navigator !== 'undefined') {
+          // Create a robust service worker registration object
+          var createServiceWorkerRegistration = function() {
+            return {
+              scope: '/',
+              installing: null,
+              waiting: null,
+              active: null,
               unregister: function() { return Promise.resolve(true); },
               update: function() { return Promise.resolve(); },
               addEventListener: function() {},
-              removeEventListener: function() {}
+              removeEventListener: function() {},
+              dispatchEvent: function() { return true; }
+            };
+          };
+          
+          // Ensure serviceWorker exists and is not overrideable
+          if (!navigator.serviceWorker) {
+            Object.defineProperty(navigator, 'serviceWorker', {
+              value: {
+                register: function(scriptURL, options) {
+                  return Promise.resolve(createServiceWorkerRegistration());
+                },
+                getRegistration: function() {
+                  return Promise.resolve(createServiceWorkerRegistration());
+                },
+                getRegistrations: function() {
+                  return Promise.resolve([createServiceWorkerRegistration()]);
+                },
+                ready: Promise.resolve(createServiceWorkerRegistration()),
+                controller: null,
+                addEventListener: function() {},
+                removeEventListener: function() {},
+                dispatchEvent: function() { return true; }
+              },
+              writable: false,
+              configurable: false
             });
-          },
-          ready: Promise.resolve({
-            unregister: function() { return Promise.resolve(true); },
-            update: function() { return Promise.resolve(); },
-            addEventListener: function() {},
-            removeEventListener: function() {}
-          }),
-          controller: null,
-          addEventListener: function() {},
-          removeEventListener: function() {}
-        };
-      }
-      
-      // Chrome extension API polyfill
-      if (typeof chrome === 'undefined') {
-        globalThis.chrome = {
-          runtime: {
-            id: 'polyfill',
-            onMessage: {
-              addListener: function() {},
-              removeListener: function() {},
-              hasListener: function() { return false; }
-            },
-            sendMessage: function() { return Promise.resolve(); },
-            connect: function() {
-              return {
-                postMessage: function() {},
-                onMessage: { addListener: function() {}, removeListener: function() {} },
-                onDisconnect: { addListener: function() {}, removeListener: function() {} }
-              };
-            }
-          },
-          storage: {
-            local: {
-              get: function() { return Promise.resolve({}); },
-              set: function() { return Promise.resolve(); },
-              remove: function() { return Promise.resolve(); },
-              clear: function() { return Promise.resolve(); }
-            }
           }
-        };
-        if (typeof window !== 'undefined') {
+        }
+        
+        // Enhanced Chrome extension API polyfill
+        if (typeof globalThis.chrome === 'undefined') {
+          globalThis.chrome = {
+            runtime: {
+              id: 'polyfill-extension',
+              onMessage: {
+                addListener: function() {},
+                removeListener: function() {},
+                hasListener: function() { return false; },
+                hasListeners: function() { return false; }
+              },
+              onConnect: {
+                addListener: function() {},
+                removeListener: function() {},
+                hasListener: function() { return false; }
+              },
+              sendMessage: function(message, options, callback) {
+                if (callback) callback();
+                return Promise.resolve();
+              },
+              connect: function() {
+                return {
+                  name: 'polyfill',
+                  sender: null,
+                  postMessage: function() {},
+                  disconnect: function() {},
+                  onMessage: { 
+                    addListener: function() {}, 
+                    removeListener: function() {},
+                    hasListener: function() { return false; }
+                  },
+                  onDisconnect: { 
+                    addListener: function() {}, 
+                    removeListener: function() {},
+                    hasListener: function() { return false; }
+                  }
+                };
+              },
+              getManifest: function() {
+                return { version: '1.0.0', name: 'Polyfill Extension' };
+              }
+            },
+            storage: {
+              local: {
+                get: function(keys, callback) {
+                  var result = {};
+                  if (callback) callback(result);
+                  return Promise.resolve(result);
+                },
+                set: function(items, callback) {
+                  if (callback) callback();
+                  return Promise.resolve();
+                },
+                remove: function(keys, callback) {
+                  if (callback) callback();
+                  return Promise.resolve();
+                },
+                clear: function(callback) {
+                  if (callback) callback();
+                  return Promise.resolve();
+                }
+              },
+              sync: {
+                get: function(keys, callback) {
+                  var result = {};
+                  if (callback) callback(result);
+                  return Promise.resolve(result);
+                },
+                set: function(items, callback) {
+                  if (callback) callback();
+                  return Promise.resolve();
+                },
+                remove: function(keys, callback) {
+                  if (callback) callback();
+                  return Promise.resolve();
+                },
+                clear: function(callback) {
+                  if (callback) callback();
+                  return Promise.resolve();
+                }
+              }
+            },
+            tabs: {
+              query: function(queryInfo, callback) {
+                var result = [];
+                if (callback) callback(result);
+                return Promise.resolve(result);
+              }
+            }
+          };
+        }
+        if (typeof window !== 'undefined' && typeof window.chrome === 'undefined') {
           window.chrome = globalThis.chrome;
         }
-      }
+      })();
       
       // Buffer polyfill for crypto extensions
       if (typeof Buffer === 'undefined') {
