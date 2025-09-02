@@ -42,6 +42,62 @@
         }
       }
       
+      // Service Worker polyfill for wallet extensions
+      if (typeof navigator !== 'undefined' && !navigator.serviceWorker) {
+        navigator.serviceWorker = {
+          register: function() {
+            return Promise.resolve({
+              unregister: function() { return Promise.resolve(true); },
+              update: function() { return Promise.resolve(); },
+              addEventListener: function() {},
+              removeEventListener: function() {}
+            });
+          },
+          ready: Promise.resolve({
+            unregister: function() { return Promise.resolve(true); },
+            update: function() { return Promise.resolve(); },
+            addEventListener: function() {},
+            removeEventListener: function() {}
+          }),
+          controller: null,
+          addEventListener: function() {},
+          removeEventListener: function() {}
+        };
+      }
+      
+      // Chrome extension API polyfill
+      if (typeof chrome === 'undefined') {
+        globalThis.chrome = {
+          runtime: {
+            id: 'polyfill',
+            onMessage: {
+              addListener: function() {},
+              removeListener: function() {},
+              hasListener: function() { return false; }
+            },
+            sendMessage: function() { return Promise.resolve(); },
+            connect: function() {
+              return {
+                postMessage: function() {},
+                onMessage: { addListener: function() {}, removeListener: function() {} },
+                onDisconnect: { addListener: function() {}, removeListener: function() {} }
+              };
+            }
+          },
+          storage: {
+            local: {
+              get: function() { return Promise.resolve({}); },
+              set: function() { return Promise.resolve(); },
+              remove: function() { return Promise.resolve(); },
+              clear: function() { return Promise.resolve(); }
+            }
+          }
+        };
+        if (typeof window !== 'undefined') {
+          window.chrome = globalThis.chrome;
+        }
+      }
+      
       // Buffer polyfill for crypto extensions
       if (typeof Buffer === 'undefined') {
         // More complete Buffer polyfill that crypto libraries expect
