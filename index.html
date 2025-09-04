@@ -20,13 +20,22 @@
   <body>
     <div id="root"></div>
     <script>
-      // Critical polyfills - must run before ANY extension scripts
+      // CRITICAL: Immediate polyfills - must execute synchronously before extensions
       (function() {
         'use strict';
         
+        // Freeze critical objects to prevent tampering
+        var freezeObject = function(obj) {
+          try {
+            if (obj && typeof obj === 'object') {
+              Object.freeze(obj);
+            }
+          } catch (e) {}
+        };
+        
         // Global namespace polyfill
         if (typeof global === 'undefined') {
-          var global = globalThis;
+          globalThis.global = globalThis;
         }
         
         // Enhanced process polyfill for crypto extensions
@@ -46,50 +55,86 @@
             argv: [],
             pid: 1
           };
+          freezeObject(globalThis.process);
         }
         if (typeof window !== 'undefined' && typeof window.process === 'undefined') {
           window.process = globalThis.process;
         }
         
-        // Comprehensive Service Worker polyfill for wallet extensions
+        // BULLETPROOF Service Worker polyfill - prevent all destructuring errors
         if (typeof navigator !== 'undefined') {
-          // Create a robust service worker registration object
+          // Create comprehensive service worker registration
           var createServiceWorkerRegistration = function() {
-            return {
+            var registration = {
               scope: '/',
               installing: null,
               waiting: null,
-              active: null,
+              active: {
+                scriptURL: '',
+                state: 'activated',
+                addEventListener: function() {},
+                removeEventListener: function() {},
+                postMessage: function() {}
+              },
               unregister: function() { return Promise.resolve(true); },
               update: function() { return Promise.resolve(); },
               addEventListener: function() {},
               removeEventListener: function() {},
               dispatchEvent: function() { return true; }
             };
+            freezeObject(registration);
+            return registration;
           };
           
-          // Ensure serviceWorker exists and is not overrideable
-          if (!navigator.serviceWorker) {
-            Object.defineProperty(navigator, 'serviceWorker', {
-              value: {
-                register: function(scriptURL, options) {
-                  return Promise.resolve(createServiceWorkerRegistration());
-                },
-                getRegistration: function() {
-                  return Promise.resolve(createServiceWorkerRegistration());
-                },
-                getRegistrations: function() {
-                  return Promise.resolve([createServiceWorkerRegistration()]);
-                },
-                ready: Promise.resolve(createServiceWorkerRegistration()),
-                controller: null,
-                addEventListener: function() {},
-                removeEventListener: function() {},
-                dispatchEvent: function() { return true; }
-              },
-              writable: false,
-              configurable: false
-            });
+          // Create bulletproof serviceWorker object
+          var serviceWorkerAPI = {
+            register: function(scriptURL, options) {
+              return Promise.resolve(createServiceWorkerRegistration());
+            },
+            getRegistration: function(clientURL) {
+              return Promise.resolve(createServiceWorkerRegistration());
+            },
+            getRegistrations: function() {
+              return Promise.resolve([createServiceWorkerRegistration()]);
+            },
+            ready: Promise.resolve(createServiceWorkerRegistration()),
+            controller: {
+              scriptURL: '',
+              state: 'activated',
+              addEventListener: function() {},
+              removeEventListener: function() {},
+              postMessage: function() {}
+            },
+            addEventListener: function() {},
+            removeEventListener: function() {},
+            dispatchEvent: function() { return true; },
+            // Additional properties that extensions might expect
+            startMessages: function() {},
+            getAll: function() { return Promise.resolve([]); }
+          };
+          
+          // Force-define serviceWorker as non-configurable and non-writable
+          try {
+            if (!navigator.serviceWorker) {
+              Object.defineProperty(navigator, 'serviceWorker', {
+                value: serviceWorkerAPI,
+                writable: false,
+                configurable: false,
+                enumerable: true
+              });
+            } else {
+              // If it exists but missing properties, patch it
+              var existing = navigator.serviceWorker;
+              ['register', 'getRegistration', 'getRegistrations'].forEach(function(prop) {
+                if (typeof existing[prop] !== 'function') {
+                  existing[prop] = serviceWorkerAPI[prop];
+                }
+              });
+            }
+            freezeObject(navigator.serviceWorker);
+          } catch (e) {
+            // Fallback: assign directly if defineProperty fails
+            navigator.serviceWorker = serviceWorkerAPI;
           }
         }
         
