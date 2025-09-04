@@ -38,7 +38,7 @@
           globalThis.global = globalThis;
         }
         
-        // Enhanced process polyfill for crypto extensions
+        // Enhanced process polyfill for crypto extensions (mutable for Vite)
         if (typeof globalThis.process === 'undefined') {
           globalThis.process = {
             env: {},
@@ -55,7 +55,7 @@
             argv: [],
             pid: 1
           };
-          freezeObject(globalThis.process);
+          // Don't freeze process object - Vite needs to modify process.env
         }
         if (typeof window !== 'undefined' && typeof window.process === 'undefined') {
           window.process = globalThis.process;
