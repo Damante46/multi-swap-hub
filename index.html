@@ -138,7 +138,7 @@
           }
         }
         
-        // Enhanced Chrome extension API polyfill
+        // Enhanced Chrome extension API polyfill with wallet extension support
         if (typeof globalThis.chrome === 'undefined') {
           globalThis.chrome = {
             runtime: {
@@ -178,6 +178,10 @@
               },
               getManifest: function() {
                 return { version: '1.0.0', name: 'Polyfill Extension' };
+              },
+              // Add register method for wallet extensions
+              register: function() { 
+                return Promise.resolve(); 
               }
             },
             storage: {
@@ -232,6 +236,40 @@
         if (typeof window !== 'undefined' && typeof window.chrome === 'undefined') {
           window.chrome = globalThis.chrome;
         }
+        
+        // Add global register function for wallet extensions
+        if (typeof globalThis.register === 'undefined') {
+          globalThis.register = function() {
+            return Promise.resolve();
+          };
+        }
+        if (typeof window !== 'undefined' && typeof window.register === 'undefined') {
+          window.register = globalThis.register;
+        }
+        
+        // Additional wallet extension polyfills
+        if (typeof globalThis.webkitRequestAnimationFrame === 'undefined') {
+          globalThis.webkitRequestAnimationFrame = globalThis.requestAnimationFrame || function(callback) {
+            return setTimeout(callback, 16);
+          };
+        }
+        
+        // Ensure critical APIs exist for wallet extensions
+        var walletAPIs = {
+          register: function() { return Promise.resolve(); },
+          unregister: function() { return Promise.resolve(); },
+          getRegistration: function() { return Promise.resolve(null); }
+        };
+        
+        // Apply wallet APIs to both global and window
+        Object.keys(walletAPIs).forEach(function(key) {
+          if (typeof globalThis[key] === 'undefined') {
+            globalThis[key] = walletAPIs[key];
+          }
+          if (typeof window !== 'undefined' && typeof window[key] === 'undefined') {
+            window[key] = walletAPIs[key];
+          }
+        });
       })();
       
       // Buffer polyfill for crypto extensions
