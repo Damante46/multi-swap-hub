@@ -7,7 +7,8 @@ import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/components/AuthProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { Navigation } from "@/components/Navigation";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
 import Index from "./pages/Index";
 import History from "./pages/History";
 import Wallet from "./pages/Wallet";
@@ -22,7 +23,7 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider
         attribute="class"
-        defaultTheme="system"
+        defaultTheme="dark"
         enableSystem
         disableTransitionOnChange
       >
@@ -35,17 +36,37 @@ const App = () => (
                 <Route path="/auth" element={<Auth />} />
                 <Route path="*" element={
                   <ProtectedRoute>
-                    <div className="min-h-screen bg-background">
-                      <Navigation />
-                      <Routes>
-                        <Route path="/" element={<Index />} />
-                        <Route path="/swap" element={<Index />} />
-                        <Route path="/history" element={<History />} />
-                        <Route path="/wallet" element={<Wallet />} />
-                        <Route path="/settings" element={<Settings />} />
-                        <Route path="*" element={<NotFound />} />
-                      </Routes>
-                    </div>
+                    <SidebarProvider>
+                      <div className="min-h-screen flex w-full bg-background">
+                        <AppSidebar />
+                        <div className="flex-1 flex flex-col">
+                          <header className="h-16 flex items-center border-b bg-card/50 backdrop-blur-sm px-6">
+                            <SidebarTrigger className="mr-4" />
+                            <h1 className="text-lg font-semibold bg-gradient-primary bg-clip-text text-transparent">
+                              Multi Swap Hub
+                            </h1>
+                            <div className="ml-auto flex items-center space-x-2">
+                              <div className="flex items-center space-x-1 text-sm">
+                                <div className="h-2 w-2 rounded-full bg-success animate-pulse"></div>
+                                <span className="text-muted-foreground">Live</span>
+                              </div>
+                            </div>
+                          </header>
+                          <main className="flex-1 overflow-auto">
+                            <Routes>
+                              <Route path="/" element={<Index />} />
+                              <Route path="/swap" element={<Index />} />
+                              <Route path="/history" element={<History />} />
+                              <Route path="/wallet" element={<Wallet />} />
+                              <Route path="/settings" element={<Settings />} />
+                              <Route path="/analytics" element={<Index />} />
+                              <Route path="/profile" element={<Settings />} />
+                              <Route path="*" element={<NotFound />} />
+                            </Routes>
+                          </main>
+                        </div>
+                      </div>
+                    </SidebarProvider>
                   </ProtectedRoute>
                 } />
               </Routes>
