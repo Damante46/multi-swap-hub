@@ -20,248 +20,79 @@
   <body>
     <div id="root"></div>
     <script>
-      // CRITICAL: Immediate polyfills - must execute synchronously before extensions
+      // IMMEDIATE polyfills - must run before ANY extension code
       (function() {
         'use strict';
         
-        // Freeze critical objects to prevent tampering
-        var freezeObject = function(obj) {
-          try {
-            if (obj && typeof obj === 'object') {
-              Object.freeze(obj);
-            }
-          } catch (e) {}
-        };
+        // Critical: Define all APIs that wallet extensions might destructure from
+        // This must happen IMMEDIATELY to prevent undefined destructuring
         
-        // Global namespace polyfill
-        if (typeof global === 'undefined') {
-          globalThis.global = globalThis;
+        // 1. Service Worker API with register method
+        if (typeof navigator === 'undefined') {
+          globalThis.navigator = {};
         }
         
-        // Enhanced process polyfill for crypto extensions (mutable for Vite)
-        if (typeof globalThis.process === 'undefined') {
-          globalThis.process = {
-            env: {},
-            version: '16.0.0',
-            versions: { node: '16.0.0' },
-            platform: 'browser',
-            browser: true,
-            nextTick: function(callback) {
-              setTimeout(callback, 0);
-            },
-            cwd: function() { return '/'; },
-            chdir: function() {},
-            exit: function() {},
-            argv: [],
-            pid: 1
-          };
-          // Don't freeze process object - Vite needs to modify process.env
-        }
-        if (typeof window !== 'undefined' && typeof window.process === 'undefined') {
-          window.process = globalThis.process;
-        }
-        
-        // BULLETPROOF Service Worker polyfill - prevent all destructuring errors
-        if (typeof navigator !== 'undefined') {
-          // Create comprehensive service worker registration
-          var createServiceWorkerRegistration = function() {
-            var registration = {
+        var serviceWorkerPolyfill = {
+          register: function(scriptURL, options) {
+            return Promise.resolve({
               scope: '/',
               installing: null,
               waiting: null,
-              active: {
-                scriptURL: '',
-                state: 'activated',
-                addEventListener: function() {},
-                removeEventListener: function() {},
-                postMessage: function() {}
-              },
+              active: { state: 'activated' },
               unregister: function() { return Promise.resolve(true); },
-              update: function() { return Promise.resolve(); },
-              addEventListener: function() {},
-              removeEventListener: function() {},
-              dispatchEvent: function() { return true; }
-            };
-            freezeObject(registration);
-            return registration;
-          };
-          
-          // Create bulletproof serviceWorker object
-          var serviceWorkerAPI = {
-            register: function(scriptURL, options) {
-              return Promise.resolve(createServiceWorkerRegistration());
-            },
-            getRegistration: function(clientURL) {
-              return Promise.resolve(createServiceWorkerRegistration());
-            },
-            getRegistrations: function() {
-              return Promise.resolve([createServiceWorkerRegistration()]);
-            },
-            ready: Promise.resolve(createServiceWorkerRegistration()),
-            controller: {
-              scriptURL: '',
-              state: 'activated',
-              addEventListener: function() {},
-              removeEventListener: function() {},
-              postMessage: function() {}
-            },
-            addEventListener: function() {},
-            removeEventListener: function() {},
-            dispatchEvent: function() { return true; },
-            // Additional properties that extensions might expect
-            startMessages: function() {},
-            getAll: function() { return Promise.resolve([]); }
-          };
-          
-          // Force-define serviceWorker as non-configurable and non-writable
-          try {
-            if (!navigator.serviceWorker) {
-              Object.defineProperty(navigator, 'serviceWorker', {
-                value: serviceWorkerAPI,
-                writable: false,
-                configurable: false,
-                enumerable: true
-              });
-            } else {
-              // If it exists but missing properties, patch it
-              var existing = navigator.serviceWorker;
-              ['register', 'getRegistration', 'getRegistrations'].forEach(function(prop) {
-                if (typeof existing[prop] !== 'function') {
-                  existing[prop] = serviceWorkerAPI[prop];
-                }
-              });
+              update: function() { return Promise.resolve(); }
+            });
+          },
+          getRegistration: function() { return Promise.resolve(null); },
+          getRegistrations: function() { return Promise.resolve([]); },
+          ready: Promise.resolve({ active: { state: 'activated' } }),
+          controller: null
+        };
+        
+        if (!navigator.serviceWorker) {
+          Object.defineProperty(navigator, 'serviceWorker', {
+            value: serviceWorkerPolyfill,
+            writable: false,
+            configurable: false
+          });
+        }
+        
+        // 2. Chrome Extension APIs
+        var chromePolyfill = {
+          runtime: {
+            register: function() { return Promise.resolve(); },
+            id: 'polyfill-ext',
+            onMessage: { addListener: function() {} },
+            sendMessage: function() { return Promise.resolve(); },
+            connect: function() { 
+              return { 
+                postMessage: function() {},
+                onMessage: { addListener: function() {} },
+                onDisconnect: { addListener: function() {} }
+              }; 
             }
-            freezeObject(navigator.serviceWorker);
-          } catch (e) {
-            // Fallback: assign directly if defineProperty fails
-            navigator.serviceWorker = serviceWorkerAPI;
+          },
+          storage: {
+            local: {
+              get: function() { return Promise.resolve({}); },
+              set: function() { return Promise.resolve(); }
+            }
           }
+        };
+        
+        if (typeof chrome === 'undefined') {
+          globalThis.chrome = chromePolyfill;
+          if (typeof window !== 'undefined') window.chrome = chromePolyfill;
         }
         
-        // Enhanced Chrome extension API polyfill with wallet extension support
-        if (typeof globalThis.chrome === 'undefined') {
-          globalThis.chrome = {
-            runtime: {
-              id: 'polyfill-extension',
-              onMessage: {
-                addListener: function() {},
-                removeListener: function() {},
-                hasListener: function() { return false; },
-                hasListeners: function() { return false; }
-              },
-              onConnect: {
-                addListener: function() {},
-                removeListener: function() {},
-                hasListener: function() { return false; }
-              },
-              sendMessage: function(message, options, callback) {
-                if (callback) callback();
-                return Promise.resolve();
-              },
-              connect: function() {
-                return {
-                  name: 'polyfill',
-                  sender: null,
-                  postMessage: function() {},
-                  disconnect: function() {},
-                  onMessage: { 
-                    addListener: function() {}, 
-                    removeListener: function() {},
-                    hasListener: function() { return false; }
-                  },
-                  onDisconnect: { 
-                    addListener: function() {}, 
-                    removeListener: function() {},
-                    hasListener: function() { return false; }
-                  }
-                };
-              },
-              getManifest: function() {
-                return { version: '1.0.0', name: 'Polyfill Extension' };
-              },
-              // Add register method for wallet extensions
-              register: function() { 
-                return Promise.resolve(); 
-              }
-            },
-            storage: {
-              local: {
-                get: function(keys, callback) {
-                  var result = {};
-                  if (callback) callback(result);
-                  return Promise.resolve(result);
-                },
-                set: function(items, callback) {
-                  if (callback) callback();
-                  return Promise.resolve();
-                },
-                remove: function(keys, callback) {
-                  if (callback) callback();
-                  return Promise.resolve();
-                },
-                clear: function(callback) {
-                  if (callback) callback();
-                  return Promise.resolve();
-                }
-              },
-              sync: {
-                get: function(keys, callback) {
-                  var result = {};
-                  if (callback) callback(result);
-                  return Promise.resolve(result);
-                },
-                set: function(items, callback) {
-                  if (callback) callback();
-                  return Promise.resolve();
-                },
-                remove: function(keys, callback) {
-                  if (callback) callback();
-                  return Promise.resolve();
-                },
-                clear: function(callback) {
-                  if (callback) callback();
-                  return Promise.resolve();
-                }
-              }
-            },
-            tabs: {
-              query: function(queryInfo, callback) {
-                var result = [];
-                if (callback) callback(result);
-                return Promise.resolve(result);
-              }
-            }
-          };
-        }
-        if (typeof window !== 'undefined' && typeof window.chrome === 'undefined') {
-          window.chrome = globalThis.chrome;
-        }
-        
-        // Add global register function for wallet extensions
-        if (typeof globalThis.register === 'undefined') {
-          globalThis.register = function() {
-            return Promise.resolve();
-          };
-        }
-        if (typeof window !== 'undefined' && typeof window.register === 'undefined') {
-          window.register = globalThis.register;
-        }
-        
-        // Additional wallet extension polyfills
-        if (typeof globalThis.webkitRequestAnimationFrame === 'undefined') {
-          globalThis.webkitRequestAnimationFrame = globalThis.requestAnimationFrame || function(callback) {
-            return setTimeout(callback, 16);
-          };
-        }
-        
-        // Ensure critical APIs exist for wallet extensions
+        // 3. Global wallet APIs that extensions might destructure
         var walletAPIs = {
           register: function() { return Promise.resolve(); },
           unregister: function() { return Promise.resolve(); },
           getRegistration: function() { return Promise.resolve(null); }
         };
         
-        // Apply wallet APIs to both global and window
+        // Apply to both global and window
         Object.keys(walletAPIs).forEach(function(key) {
           if (typeof globalThis[key] === 'undefined') {
             globalThis[key] = walletAPIs[key];
@@ -270,50 +101,51 @@
             window[key] = walletAPIs[key];
           }
         });
-      })();
-      
-      // Buffer polyfill for crypto extensions
-      if (typeof Buffer === 'undefined') {
-        // More complete Buffer polyfill that crypto libraries expect
-        globalThis.Buffer = {
-          from: function(data, encoding) {
-            if (typeof data === 'string') {
-              return new TextEncoder().encode(data);
-            }
-            return data;
-          },
-          isBuffer: function(obj) {
-            return obj && typeof obj === 'object' && obj.constructor && obj.constructor.name === 'Buffer';
-          },
-          alloc: function(size, fill) {
-            const buf = new Uint8Array(size);
-            if (fill !== undefined) {
-              buf.fill(fill);
-            }
-            return buf;
-          },
-          allocUnsafe: function(size) {
-            return new Uint8Array(size);
-          },
-          concat: function(buffers, totalLength) {
-            if (totalLength === undefined) {
-              totalLength = buffers.reduce((sum, buf) => sum + buf.length, 0);
-            }
-            const result = new Uint8Array(totalLength);
-            let offset = 0;
-            for (const buf of buffers) {
-              result.set(buf, offset);
-              offset += buf.length;
-            }
-            return result;
-          }
+        
+        // 4. Web3 Provider polyfills (common in wallet extensions)
+        var web3Provider = {
+          register: function() { return Promise.resolve(); },
+          isMetaMask: false,
+          isPhantom: false,
+          request: function() { return Promise.reject(new Error('No wallet connected')); }
         };
         
-        // Also set on window for extensions
         if (typeof window !== 'undefined') {
-          window.Buffer = globalThis.Buffer;
+          if (!window.ethereum) window.ethereum = web3Provider;
+          if (!window.solana) window.solana = web3Provider;
+          if (!window.phantom) window.phantom = { solana: web3Provider };
         }
-      }
+        
+        // 5. Process polyfill (mutable for Vite)
+        if (typeof process === 'undefined') {
+          globalThis.process = {
+            env: {},
+            version: '16.0.0',
+            platform: 'browser',
+            nextTick: function(fn) { setTimeout(fn, 0); }
+          };
+          if (typeof window !== 'undefined') window.process = globalThis.process;
+        }
+        
+        // 6. Global namespace
+        if (typeof global === 'undefined') {
+          globalThis.global = globalThis;
+        }
+        
+        // 7. Buffer polyfill
+        if (typeof Buffer === 'undefined') {
+          var BufferPolyfill = {
+            from: function(data) { 
+              return data instanceof Uint8Array ? data : new TextEncoder().encode(data); 
+            },
+            isBuffer: function() { return false; },
+            alloc: function(size) { return new Uint8Array(size); }
+          };
+          globalThis.Buffer = BufferPolyfill;
+          if (typeof window !== 'undefined') window.Buffer = BufferPolyfill;
+        }
+        
+      })();
     </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
