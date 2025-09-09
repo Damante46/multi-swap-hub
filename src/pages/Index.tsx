@@ -3,70 +3,61 @@ import { WalletConnection } from "@/components/WalletConnection";
 import { RecentSwaps } from "@/components/RecentSwaps";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, DollarSign, BarChart3, Activity } from "lucide-react";
+import { TrendingUp, DollarSign, BarChart3, Activity } from "lucide-react";
 
 const Index = () => {
   return (
     <div className="p-6 space-y-6">
-      {/* Trading Dashboard Header */}
+      {/* Simple Stats Header */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-card shadow-card border-border/50">
+        <Card className="shadow-card border">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">24h Volume</p>
                 <p className="text-2xl font-bold">$2.4B</p>
-                <p className="text-xs text-success flex items-center">
-                  <TrendingUp className="h-3 w-3 mr-1" />
-                  +12.5%
-                </p>
+                <p className="text-xs text-success">+12.5%</p>
               </div>
-              <BarChart3 className="h-8 w-8 text-primary" />
+              <BarChart3 className="h-8 w-8 text-muted-foreground" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-card shadow-card border-border/50">
+        <Card className="shadow-card border">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Active Pairs</p>
                 <p className="text-2xl font-bold">1,247</p>
-                <p className="text-xs text-info flex items-center">
-                  <Activity className="h-3 w-3 mr-1" />
-                  Live
-                </p>
+                <p className="text-xs text-muted-foreground">Live</p>
               </div>
-              <Activity className="h-8 w-8 text-info" />
+              <Activity className="h-8 w-8 text-muted-foreground" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-card shadow-card border-border/50">
+        <Card className="shadow-card border">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Best Rate</p>
                 <p className="text-2xl font-bold">0.12%</p>
-                <p className="text-xs text-success flex items-center">
-                  <TrendingDown className="h-3 w-3 mr-1" />
-                  Low Impact
-                </p>
+                <p className="text-xs text-success">Low Impact</p>
               </div>
-              <DollarSign className="h-8 w-8 text-success" />
+              <DollarSign className="h-8 w-8 text-muted-foreground" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-card shadow-card border-border/50">
+        <Card className="shadow-card border">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Gas Price</p>
                 <p className="text-2xl font-bold">32 Gwei</p>
-                <p className="text-xs text-warning">Standard</p>
+                <p className="text-xs text-muted-foreground">Standard</p>
               </div>
-              <Badge variant="secondary" className="text-warning">Fast</Badge>
+              <Badge variant="secondary">Fast</Badge>
             </div>
           </CardContent>
         </Card>
@@ -75,14 +66,12 @@ const Index = () => {
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Main Trading Interface */}
         <div className="lg:col-span-1 space-y-6">
-          <Card className="bg-gradient-card shadow-elegant border-border/50">
+          <Card className="shadow-card border">
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center justify-between">
-                <span className="bg-gradient-primary bg-clip-text text-transparent">
-                  Swap Tokens
-                </span>
-                <Badge variant="outline" className="border-success text-success">
-                  Live Rates
+                <span>Swap Tokens</span>
+                <Badge variant="outline" className="text-primary border-primary">
+                  Live
                 </Badge>
               </CardTitle>
             </CardHeader>
@@ -93,12 +82,12 @@ const Index = () => {
           </Card>
         </div>
 
-        {/* Trading Activity & Analytics */}
+        {/* Trading Activity */}
         <div className="lg:col-span-2 space-y-6">
           <RecentSwaps />
           
           {/* Market Overview */}
-          <Card className="bg-gradient-card shadow-card border-border/50">
+          <Card className="shadow-card border">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <span>Market Overview</span>
@@ -117,14 +106,14 @@ const Index = () => {
                       { pair: "BTC/USDC", volume: "$892M", change: "-0.87%" },
                       { pair: "MATIC/ETH", volume: "$67M", change: "+3.21%" },
                     ].map((item) => (
-                      <div key={item.pair} className="flex items-center justify-between p-3 rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors">
+                      <div key={item.pair} className="flex items-center justify-between p-3 rounded-lg bg-muted hover:bg-muted/70 transition-colors">
                         <div>
                           <span className="font-medium text-sm">{item.pair}</span>
                           <p className="text-xs text-muted-foreground">{item.volume}</p>
                         </div>
                         <Badge 
                           variant="secondary" 
-                          className={item.change.startsWith('+') ? "text-success" : "text-danger"}
+                          className={item.change.startsWith('+') ? "text-success" : "text-destructive"}
                         >
                           {item.change}
                         </Badge>
@@ -143,14 +132,13 @@ const Index = () => {
                       { dex: "PancakeSwap", share: "15%", status: "Good" },
                       { dex: "1inch", share: "25%", status: "Best Rate" },
                     ].map((item) => (
-                      <div key={item.dex} className="flex items-center justify-between p-3 rounded-lg bg-muted/20">
+                      <div key={item.dex} className="flex items-center justify-between p-3 rounded-lg bg-muted">
                         <div>
                           <span className="font-medium text-sm">{item.dex}</span>
                           <p className="text-xs text-muted-foreground">{item.share} market share</p>
                         </div>
                         <Badge 
                           variant={item.status === "Best Rate" ? "default" : "secondary"}
-                          className={item.status === "Best Rate" ? "bg-success text-white" : ""}
                         >
                           {item.status}
                         </Badge>

@@ -40,14 +40,14 @@ const App = () => (
                       <div className="min-h-screen flex w-full bg-background">
                         <AppSidebar />
                         <div className="flex-1 flex flex-col">
-                          <header className="h-16 flex items-center border-b bg-card/50 backdrop-blur-sm px-6">
+                          <header className="h-16 flex items-center border-b bg-card px-6">
                             <SidebarTrigger className="mr-4" />
-                            <h1 className="text-lg font-semibold bg-gradient-primary bg-clip-text text-transparent">
+                            <h1 className="text-lg font-semibold">
                               Multi Swap Hub
                             </h1>
                             <div className="ml-auto flex items-center space-x-2">
                               <div className="flex items-center space-x-1 text-sm">
-                                <div className="h-2 w-2 rounded-full bg-success animate-pulse"></div>
+                                <div className="h-2 w-2 rounded-full bg-success"></div>
                                 <span className="text-muted-foreground">Live</span>
                               </div>
                             </div>

@@ -39,21 +39,19 @@ export function AppSidebar() {
   
   const getNavClasses = ({ isActive }: { isActive: boolean }) =>
     isActive 
-      ? "bg-primary/10 text-primary font-medium border-r-2 border-primary" 
-      : "hover:bg-muted/50 text-muted-foreground hover:text-foreground";
+      ? "bg-muted text-foreground font-medium" 
+      : "text-muted-foreground hover:text-foreground hover:bg-muted/50";
 
   return (
     <Sidebar className={isCollapsed ? "w-16" : "w-64"}>
       <SidebarHeader className="p-6">
         <div className="flex items-center space-x-3">
-          <div className="h-8 w-8 rounded-lg bg-gradient-primary flex items-center justify-center">
+          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
             <Zap className="h-5 w-5 text-white" />
           </div>
           {!isCollapsed && (
             <div>
-              <h2 className="text-lg font-bold bg-gradient-primary bg-clip-text text-transparent">
-                SwapHub
-              </h2>
+              <h2 className="text-lg font-bold">SwapHub</h2>
               <p className="text-xs text-muted-foreground">DEX Aggregator</p>
             </div>
           )}
@@ -109,7 +107,7 @@ export function AppSidebar() {
 
       <SidebarFooter className="p-4">
         {!isCollapsed && (
-          <div className="rounded-lg bg-muted/50 p-3">
+          <div className="rounded-lg bg-muted p-3">
             <div className="flex items-center space-x-2 mb-2">
               <TrendingUp className="h-4 w-4 text-success" />
               <span className="text-sm font-medium">Market Status</span>

@@ -8,67 +8,52 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Base Colors - Professional DEX Theme */
-    --background: 248 250 252;  /* slate-50 */
-    --foreground: 15 23 42;     /* slate-800 */
+    /* Minimal Professional Theme */
+    --background: 255 255 255;    /* Pure white */
+    --foreground: 15 23 42;       /* Dark slate */
 
-    --card: 255 255 255;        /* white */
-    --card-foreground: 15 23 42; /* slate-800 */
+    --card: 255 255 255;          /* White */
+    --card-foreground: 15 23 42;
 
     --popover: 255 255 255;
     --popover-foreground: 15 23 42;
 
-    /* Primary - DEX Blue/Green */
-    --primary: 14 165 233;       /* sky-500 - professional trading blue */
+    /* Minimal Primary - Single blue accent */
+    --primary: 59 130 246;        /* Clean blue */
     --primary-foreground: 255 255 255;
-    --primary-glow: 56 189 248;  /* sky-400 */
-    --primary-variant: 16 185 129; /* emerald-500 - trading green accent */
 
-    /* Secondary - Professional Gray */
-    --secondary: 51 65 85;       /* slate-600 */
-    --secondary-foreground: 248 250 252;
+    /* Neutral grays only */
+    --secondary: 100 116 139;     /* Slate-500 */
+    --secondary-foreground: 255 255 255;
 
-    --muted: 241 245 249;        /* slate-100 */
-    --muted-foreground: 100 116 139; /* slate-500 */
+    --muted: 248 250 252;         /* Very light gray */
+    --muted-foreground: 100 116 139;
 
-    --accent: 14 165 233;
+    --accent: 59 130 246;         /* Same as primary */
     --accent-foreground: 255 255 255;
 
-    --destructive: 239 68 68;    /* red-500 */
+    --destructive: 239 68 68;     /* Simple red */
     --destructive-foreground: 255 255 255;
 
-    --border: 226 232 240;       /* slate-200 */
-    --input: 241 245 249;        /* slate-100 */
-    --ring: 14 165 233;
+    --border: 226 232 240;        /* Light border */
+    --input: 248 250 252;         /* Light input bg */
+    --ring: 59 130 246;           /* Blue focus ring */
 
-    /* Trading Status Colors */
-    --success: 16 185 129;       /* emerald-500 - bullish green */
-    --success-foreground: 255 255 255;
-    
-    --warning: 245 158 11;       /* amber-500 - caution yellow */
-    --warning-foreground: 255 255 255;
-    
-    --danger: 239 68 68;         /* red-500 - bearish red */
-    --danger-foreground: 255 255 255;
-    
-    --info: 59 130 246;          /* blue-500 - neutral info */
-    --info-foreground: 255 255 255;
+    /* Minimal status colors */
+    --success: 34 197 94;         /* Clean green */
+    --warning: 245 158 11;        /* Clean amber */
+    --info: 59 130 246;           /* Same as primary */
 
-    /* Professional DEX Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-variant)) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--muted)) 100%);
-    --gradient-card: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--muted)/0.5) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)/0.05) 0%, hsl(var(--primary-variant)/0.05) 100%);
-    --gradient-success: linear-gradient(135deg, hsl(var(--success)) 0%, hsl(16 185 140) 100%);
-    --gradient-warning: linear-gradient(135deg, hsl(var(--warning)) 0%, hsl(245 158 25) 100%);
-    --gradient-trading: linear-gradient(135deg, hsl(15 23 42) 0%, hsl(30 41 59) 100%); /* dark trading theme */
+    /* No gradients - solid colors only */
+    --gradient-primary: hsl(var(--primary));
+    --gradient-card: hsl(var(--card));
+    --gradient-hero: hsl(var(--muted));
     
-    /* Professional Shadows */
-    --shadow-elegant: 0 20px 60px -15px hsl(var(--primary) / 0.25);
-    --shadow-glow: 0 0 40px hsl(var(--primary-glow) / 0.2);
-    --shadow-card: 0 4px 20px -2px hsl(var(--foreground) / 0.08), 0 2px 8px -2px hsl(var(--foreground) / 0.04);
-    --shadow-button: 0 4px 12px -2px hsl(var(--primary) / 0.25);
-    --shadow-input: 0 2px 8px -2px hsl(var(--primary) / 0.08);
+    /* Minimal shadows */
+    --shadow-card: 0 1px 3px 0 hsl(0 0 0 / 0.1), 0 1px 2px -1px hsl(0 0 0 / 0.1);
+    --shadow-elegant: 0 4px 6px -1px hsl(0 0 0 / 0.1);
+
+    --radius: 0.5rem;
 
     --radius: 0.75rem;
 
@@ -90,66 +75,49 @@ All colors MUST be HSL.
   }
 
   .dark {
-    /* Dark DEX Theme - Professional Trading Interface */
-    --background: 3 7 18;         /* slate-950 - deep trading dark */
-    --foreground: 248 250 252;    /* slate-50 */
+    /* Minimal Dark Theme */
+    --background: 3 7 18;         /* Very dark */
+    --foreground: 248 250 252;    /* Light text */
 
-    --card: 15 23 42;             /* slate-800 */
+    --card: 15 23 42;             /* Dark card */
     --card-foreground: 248 250 252;
 
     --popover: 15 23 42;
     --popover-foreground: 248 250 252;
 
-    /* Primary - Bright trading colors for dark mode */
-    --primary: 56 189 248;        /* sky-400 - bright for dark bg */
-    --primary-foreground: 3 7 18;
-    --primary-glow: 125 211 252;  /* sky-300 */
-    --primary-variant: 52 211 153; /* emerald-400 */
+    /* Same minimal primary */
+    --primary: 59 130 246;        /* Blue */
+    --primary-foreground: 255 255 255;
 
-    /* Secondary - Professional dark grays */
-    --secondary: 51 65 85;        /* slate-600 */
+    /* Neutral grays */
+    --secondary: 51 65 85;        /* Dark gray */
     --secondary-foreground: 248 250 252;
 
-    --muted: 30 41 59;            /* slate-700 */
-    --muted-foreground: 148 163 184; /* slate-400 */
+    --muted: 30 41 59;            /* Darker muted */
+    --muted-foreground: 148 163 184;
 
-    --accent: 56 189 248;
-    --accent-foreground: 3 7 18;
+    --accent: 59 130 246;
+    --accent-foreground: 255 255 255;
 
-    --destructive: 248 113 113;   /* red-400 - softer for dark */
-    --destructive-foreground: 3 7 18;
+    --destructive: 239 68 68;
+    --destructive-foreground: 255 255 255;
 
-    --border: 51 65 85;           /* slate-600 */
-    --input: 30 41 59;            /* slate-700 */
-    --ring: 56 189 248;
+    --border: 51 65 85;           /* Dark border */
+    --input: 30 41 59;            /* Dark input */
+    --ring: 59 130 246;
 
-    /* Trading Status Colors - Dark Mode Optimized */
-    --success: 52 211 153;        /* emerald-400 - bright bullish */
-    --success-foreground: 3 7 18;
+    /* Minimal status colors */
+    --success: 34 197 94;
+    --warning: 245 158 11;
+    --info: 59 130 246;
+
+    /* No gradients in dark mode either */
+    --gradient-primary: hsl(var(--primary));
+    --gradient-card: hsl(var(--card));
+    --gradient-hero: hsl(var(--muted));
     
-    --warning: 251 191 36;        /* amber-400 */
-    --warning-foreground: 3 7 18;
-    
-    --danger: 248 113 113;        /* red-400 - bearish */
-    --danger-foreground: 3 7 18;
-    
-    --info: 96 165 250;           /* blue-400 */
-    --info-foreground: 3 7 18;
-
-    /* Dark Mode DEX Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-variant)) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--muted)) 100%);
-    --gradient-card: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--muted)/0.5) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)/0.1) 0%, hsl(var(--primary-variant)/0.1) 100%);
-    --gradient-success: linear-gradient(135deg, hsl(var(--success)) 0%, hsl(52 211 165) 100%);
-    --gradient-warning: linear-gradient(135deg, hsl(var(--warning)) 0%, hsl(251 191 50) 100%);
-    --gradient-trading: linear-gradient(135deg, hsl(3 7 18) 0%, hsl(15 23 42) 100%);
-    
-    --shadow-elegant: 0 20px 60px -15px hsl(var(--primary) / 0.4);
-    --shadow-glow: 0 0 50px hsl(var(--primary-glow) / 0.3);
-    --shadow-card: 0 8px 25px -5px hsl(0 0 0 / 0.3), 0 4px 10px -2px hsl(0 0 0 / 0.2);
-    --shadow-button: 0 4px 15px -2px hsl(var(--primary) / 0.4);
-    --shadow-input: 0 2px 10px -2px hsl(var(--primary) / 0.2);
+    --shadow-card: 0 1px 3px 0 hsl(0 0 0 / 0.3), 0 1px 2px -1px hsl(0 0 0 / 0.2);
+    --shadow-elegant: 0 4px 6px -1px hsl(0 0 0 / 0.2);
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
