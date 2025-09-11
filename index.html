@@ -104,40 +104,76 @@
           if (typeof window !== 'undefined') window.chrome = chromeAPI;
         }
         
-        // 5. Web3 Provider APIs
+        // 5. Enhanced Web3 Provider APIs with comprehensive register support
         var web3API = {
           register: function() { return Promise.resolve(); },
           isMetaMask: false,
           isPhantom: false,
           request: function() { return Promise.reject(new Error('No wallet')); },
           on: function() {},
-          removeListener: function() {}
+          removeListener: function() {},
+          addEventListener: function() {},
+          removeEventListener: function() {},
+          emit: function() {},
+          // Additional wallet-specific methods
+          connect: function() { return Promise.reject(new Error('No wallet')); },
+          disconnect: function() { return Promise.resolve(); },
+          signTransaction: function() { return Promise.reject(new Error('No wallet')); },
+          signMessage: function() { return Promise.reject(new Error('No wallet')); }
         };
         
-        // Apply to window for wallet extensions
+        // Apply to window and global for wallet extensions with comprehensive coverage
         if (typeof window !== 'undefined') {
           if (!window.ethereum) window.ethereum = web3API;
           if (!window.solana) window.solana = web3API;
-          if (!window.phantom) window.phantom = { solana: web3API };
+          if (!window.phantom) window.phantom = { solana: web3API, register: web3API.register };
           if (!window.coinbase) window.coinbase = web3API;
+          if (!window.trustwallet) window.trustwallet = web3API;
+          if (!window.okxwallet) window.okxwallet = web3API;
+          
+          // Ensure register is available globally on window
+          if (!window.register) window.register = web3API.register;
         }
         
-        // 6. Global APIs that extensions destructure
+        // Also apply to globalThis for broader compatibility
+        if (!globalThis.ethereum) globalThis.ethereum = web3API;
+        if (!globalThis.solana) globalThis.solana = web3API;
+        if (!globalThis.register) globalThis.register = web3API.register;
+        
+        // 6. Comprehensive Global APIs that extensions destructure
         var globalAPIs = {
           register: function() { return Promise.resolve(); },
           unregister: function() { return Promise.resolve(); },
-          getRegistration: function() { return Promise.resolve(null); }
+          getRegistration: function() { return Promise.resolve(null); },
+          getRegistrations: function() { return Promise.resolve([]); },
+          addEventListener: function() {},
+          removeEventListener: function() {},
+          dispatchEvent: function() { return true; }
         };
         
-        // Apply globally
+        // Apply globally with force override to ensure availability
         for (var key in globalAPIs) {
-          if (typeof globalThis[key] === 'undefined') {
-            globalThis[key] = globalAPIs[key];
-          }
-          if (typeof window !== 'undefined' && typeof window[key] === 'undefined') {
+          globalThis[key] = globalAPIs[key];
+          if (typeof window !== 'undefined') {
             window[key] = globalAPIs[key];
           }
+          // Also add to self for web workers
+          if (typeof self !== 'undefined' && self !== globalThis) {
+            self[key] = globalAPIs[key];
+          }
         }
+        
+        // Special handling for common extension patterns
+        var extensionAPIs = {
+          register: globalAPIs.register,
+          unregister: globalAPIs.unregister
+        };
+        
+        // Ensure these are available on all possible global objects
+        if (typeof window !== 'undefined') {
+          Object.assign(window, extensionAPIs);
+        }
+        Object.assign(globalThis, extensionAPIs);
         
         // 7. Process polyfill (mutable for Vite)
         if (typeof process === 'undefined') {
