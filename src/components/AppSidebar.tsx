@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ArrowRightLeft, History, Wallet, Settings, BarChart3, TrendingUp, Shield, User, Zap } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 import {
   Sidebar,
@@ -46,7 +47,7 @@ export function AppSidebar() {
     <Sidebar className={isCollapsed ? "w-16" : "w-64"}>
       <SidebarHeader className="p-6">
         <div className="flex items-center space-x-3">
-          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
+          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
             <Zap className="h-5 w-5 text-white" />
           </div>
           {!isCollapsed && (
@@ -65,7 +66,15 @@ export function AppSidebar() {
             <SidebarMenu>
               {mainNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+          <SidebarMenuButton
+            asChild
+            className={cn(
+              "data-[state=open]:bg-gradient-to-r data-[state=open]:from-blue-500/10 data-[state=open]:to-purple-500/10",
+              "data-[state=open]:text-blue-600 dark:data-[state=open]:text-blue-400",
+              "hover:bg-gradient-to-r hover:from-blue-500/5 hover:to-purple-500/5",
+              "transition-all duration-200"
+            )}
+          >
                     <NavLink 
                       to={item.url} 
                       end={item.url === "/"}
@@ -92,7 +101,15 @@ export function AppSidebar() {
             <SidebarMenu>
               {accountItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+            <SidebarMenuButton
+              asChild
+              className={cn(
+                location.pathname === item.url 
+                  ? "bg-gradient-to-r from-blue-500/10 to-purple-500/10 text-blue-600 dark:text-blue-400 font-medium" 
+                  : "hover:bg-gradient-to-r hover:from-blue-500/5 hover:to-purple-500/5",
+                "transition-all duration-200"
+              )}
+            >
                     <NavLink to={item.url} className={getNavClasses}>
                       <item.icon className="h-4 w-4" />
                       {!isCollapsed && <span>{item.title}</span>}
@@ -107,15 +124,15 @@ export function AppSidebar() {
 
       <SidebarFooter className="p-4">
         {!isCollapsed && (
-          <div className="rounded-lg bg-muted p-3">
+          <div className="rounded-lg bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200 dark:from-emerald-950/50 dark:to-emerald-900/30 dark:border-emerald-800 p-3">
             <div className="flex items-center space-x-2 mb-2">
-              <TrendingUp className="h-4 w-4 text-success" />
+              <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
               <span className="text-sm font-medium">Market Status</span>
             </div>
             <div className="space-y-1 text-xs text-muted-foreground">
               <div className="flex justify-between">
                 <span>Volume 24h:</span>
-                <span className="text-success">$2.4B</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-medium">$2.4B</span>
               </div>
               <div className="flex justify-between">
                 <span>Active Pairs:</span>

@@ -8,50 +8,57 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Minimal Professional Theme */
-    --background: 255 255 255;    /* Pure white */
-    --foreground: 15 23 42;       /* Dark slate */
+    /* Advanced Trading Platform Color System */
+    --background: 248 250 252;    /* Light gray background */
+    --foreground: 15 23 42;       /* Dark text */
 
-    --card: 255 255 255;          /* White */
+    --card: 255 255 255;          /* Pure white cards */
     --card-foreground: 15 23 42;
 
     --popover: 255 255 255;
     --popover-foreground: 15 23 42;
 
-    /* Minimal Primary - Single blue accent */
-    --primary: 59 130 246;        /* Clean blue */
+    /* Primary - Deep blue for trading actions */
+    --primary: 37 99 235;         /* Blue-600 for primary actions */
     --primary-foreground: 255 255 255;
+    --primary-glow: 59 130 246;   /* Lighter blue for glows */
 
-    /* Neutral grays only */
-    --secondary: 100 116 139;     /* Slate-500 */
+    /* Secondary - Purple accent for variety */
+    --secondary: 139 92 246;      /* Purple-500 */
     --secondary-foreground: 255 255 255;
 
-    --muted: 248 250 252;         /* Very light gray */
+    --muted: 241 245 249;         /* Light muted background */
     --muted-foreground: 100 116 139;
 
-    --accent: 59 130 246;         /* Same as primary */
+    --accent: 16 185 129;         /* Emerald-500 for accents */
     --accent-foreground: 255 255 255;
 
-    --destructive: 239 68 68;     /* Simple red */
+    --destructive: 239 68 68;     /* Red-500 for destructive actions */
     --destructive-foreground: 255 255 255;
 
-    --border: 226 232 240;        /* Light border */
-    --input: 248 250 252;         /* Light input bg */
-    --ring: 59 130 246;           /* Blue focus ring */
+    --border: 226 232 240;        /* Slate-200 */
+    --input: 248 250 252;
+    --ring: 37 99 235;           /* Blue focus ring */
 
-    /* Minimal status colors */
-    --success: 34 197 94;         /* Clean green */
-    --warning: 245 158 11;        /* Clean amber */
-    --info: 59 130 246;           /* Same as primary */
+    /* Trading-specific colors */
+    --success: 34 197 94;         /* Green-500 for gains */
+    --success-light: 187 247 208; /* Light green background */
+    --warning: 245 158 11;        /* Amber-500 for warnings */
+    --info: 59 130 246;          /* Blue-500 for info */
+    --profit: 16 185 129;        /* Emerald-500 for profit */
+    --loss: 239 68 68;           /* Red-500 for loss */
 
-    /* No gradients - solid colors only */
-    --gradient-primary: hsl(var(--primary));
-    --gradient-card: hsl(var(--card));
-    --gradient-hero: hsl(var(--muted));
+    /* Beautiful gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(220 91% 56%), hsl(262 83% 58%));
+    --gradient-secondary: linear-gradient(135deg, hsl(262 83% 58%), hsl(300 89% 65%));
+    --gradient-success: linear-gradient(135deg, hsl(158 64% 52%), hsl(160 84% 39%));
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(220 13% 97%));
+    --gradient-hero: linear-gradient(135deg, hsl(220 91% 56% / 0.1), hsl(262 83% 58% / 0.1));
     
-    /* Minimal shadows */
-    --shadow-card: 0 1px 3px 0 hsl(0 0 0 / 0.1), 0 1px 2px -1px hsl(0 0 0 / 0.1);
-    --shadow-elegant: 0 4px 6px -1px hsl(0 0 0 / 0.1);
+    /* Elegant shadows with color */
+    --shadow-card: 0 4px 6px -1px hsl(220 91% 56% / 0.1), 0 2px 4px -1px hsl(220 91% 56% / 0.06);
+    --shadow-elegant: 0 10px 15px -3px hsl(220 91% 56% / 0.1), 0 4px 6px -2px hsl(220 91% 56% / 0.05);
+    --shadow-glow: 0 0 20px hsl(220 91% 56% / 0.3);
 
     --radius: 0.5rem;
 
@@ -75,49 +82,57 @@ All colors MUST be HSL.
   }
 
   .dark {
-    /* Minimal Dark Theme */
-    --background: 3 7 18;         /* Very dark */
+    /* Advanced Trading Platform Dark Theme */
+    --background: 3 7 18;         /* Deep dark blue */
     --foreground: 248 250 252;    /* Light text */
 
-    --card: 15 23 42;             /* Dark card */
+    --card: 15 23 42;             /* Dark blue cards */
     --card-foreground: 248 250 252;
 
     --popover: 15 23 42;
     --popover-foreground: 248 250 252;
 
-    /* Same minimal primary */
-    --primary: 59 130 246;        /* Blue */
+    /* Enhanced primary with glow */
+    --primary: 59 130 246;        /* Bright blue */
     --primary-foreground: 255 255 255;
+    --primary-glow: 96 165 250;   /* Even brighter for dark mode */
 
-    /* Neutral grays */
-    --secondary: 51 65 85;        /* Dark gray */
-    --secondary-foreground: 248 250 252;
+    /* Purple secondary for contrast */
+    --secondary: 167 139 250;     /* Lighter purple for dark mode */
+    --secondary-foreground: 15 23 42;
 
-    --muted: 30 41 59;            /* Darker muted */
+    --muted: 30 41 59;            /* Dark muted */
     --muted-foreground: 148 163 184;
 
-    --accent: 59 130 246;
-    --accent-foreground: 255 255 255;
+    --accent: 52 211 153;         /* Bright emerald for dark mode */
+    --accent-foreground: 15 23 42;
 
-    --destructive: 239 68 68;
-    --destructive-foreground: 255 255 255;
+    --destructive: 248 113 113;   /* Brighter red for dark mode */
+    --destructive-foreground: 15 23 42;
 
-    --border: 51 65 85;           /* Dark border */
-    --input: 30 41 59;            /* Dark input */
+    --border: 51 65 85;           /* Dark borders */
+    --input: 30 41 59;
     --ring: 59 130 246;
 
-    /* Minimal status colors */
-    --success: 34 197 94;
-    --warning: 245 158 11;
-    --info: 59 130 246;
+    /* Trading colors optimized for dark mode */
+    --success: 52 211 153;        /* Bright green */
+    --success-light: 6 78 59;     /* Dark green background */
+    --warning: 251 191 36;        /* Bright amber */
+    --info: 96 165 250;          /* Bright blue */
+    --profit: 52 211 153;        /* Bright emerald */
+    --loss: 248 113 113;         /* Bright red */
 
-    /* No gradients in dark mode either */
-    --gradient-primary: hsl(var(--primary));
-    --gradient-card: hsl(var(--card));
-    --gradient-hero: hsl(var(--muted));
+    /* Dark mode gradients with glow */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(262 80% 65%));
+    --gradient-secondary: linear-gradient(135deg, hsl(262 80% 65%), hsl(300 85% 70%));
+    --gradient-success: linear-gradient(135deg, hsl(158 64% 60%), hsl(160 84% 50%));
+    --gradient-card: linear-gradient(145deg, hsl(222 84% 5%), hsl(215 28% 17%));
+    --gradient-hero: linear-gradient(135deg, hsl(217 91% 60% / 0.2), hsl(262 80% 65% / 0.2));
     
-    --shadow-card: 0 1px 3px 0 hsl(0 0 0 / 0.3), 0 1px 2px -1px hsl(0 0 0 / 0.2);
-    --shadow-elegant: 0 4px 6px -1px hsl(0 0 0 / 0.2);
+    /* Enhanced dark shadows with color */
+    --shadow-card: 0 4px 6px -1px hsl(0 0% 0% / 0.3), 0 2px 4px -1px hsl(217 91% 60% / 0.1);
+    --shadow-elegant: 0 10px 15px -3px hsl(0 0% 0% / 0.3), 0 4px 6px -2px hsl(217 91% 60% / 0.2);
+    --shadow-glow: 0 0 20px hsl(217 91% 60% / 0.4);
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
