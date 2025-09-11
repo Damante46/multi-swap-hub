@@ -10,7 +10,7 @@ const Index = () => {
     <div className="p-6 space-y-6">
       {/* Hero Section */}
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600 bg-clip-text text-transparent mb-4">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-500 via-blue-500 to-teal-500 bg-clip-text text-transparent mb-4">
           Multi-Chain DEX Hub
         </h1>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
@@ -20,54 +20,54 @@ const Index = () => {
 
       {/* Market Stats with Gradients */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 border-emerald-200 dark:from-emerald-950/50 dark:to-emerald-900/30 dark:border-emerald-800">
+        <Card className="bg-gradient-to-br from-teal-50 to-teal-100 border-teal-200 dark:from-teal-950/50 dark:to-teal-900/30 dark:border-teal-800">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">24h Volume</p>
-                <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">$2.4B</p>
-                <p className="text-xs text-emerald-600 dark:text-emerald-400">+12.5%</p>
+                <p className="text-2xl font-bold text-teal-600 dark:text-teal-400">$2.4B</p>
+                <p className="text-xs text-teal-600 dark:text-teal-400">+12.5%</p>
               </div>
-              <BarChart3 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
+              <BarChart3 className="h-8 w-8 text-teal-600 dark:text-teal-400" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 dark:from-blue-950/50 dark:to-blue-900/30 dark:border-blue-800">
+        <Card className="bg-gradient-to-br from-cyan-50 to-cyan-100 border-cyan-200 dark:from-cyan-950/50 dark:to-cyan-900/30 dark:border-cyan-800">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Active Pairs</p>
-                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">1,247</p>
-                <p className="text-xs text-blue-600 dark:text-blue-400">Live</p>
+                <p className="text-2xl font-bold text-cyan-600 dark:text-cyan-400">1,247</p>
+                <p className="text-xs text-cyan-600 dark:text-cyan-400">Live</p>
               </div>
-              <Activity className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+              <Activity className="h-8 w-8 text-cyan-600 dark:text-cyan-400" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 dark:from-purple-950/50 dark:to-purple-900/30 dark:border-purple-800">
+        <Card className="bg-gradient-to-br from-indigo-50 to-indigo-100 border-indigo-200 dark:from-indigo-950/50 dark:to-indigo-900/30 dark:border-indigo-800">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Best Rate</p>
-                <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">0.12%</p>
-                <p className="text-xs text-purple-600 dark:text-purple-400">Low Impact</p>
+                <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">0.12%</p>
+                <p className="text-xs text-indigo-600 dark:text-indigo-400">Low Impact</p>
               </div>
-              <DollarSign className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+              <DollarSign className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200 dark:from-amber-950/50 dark:to-amber-900/30 dark:border-amber-800">
+        <Card className="bg-gradient-to-br from-blue-50 to-slate-100 border-slate-200 dark:from-slate-950/50 dark:to-slate-900/30 dark:border-slate-800">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Gas Price</p>
-                <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">32 Gwei</p>
-                <p className="text-xs text-amber-600 dark:text-amber-400">Standard</p>
+                <p className="text-2xl font-bold text-slate-600 dark:text-slate-400">32 Gwei</p>
+                <p className="text-xs text-slate-600 dark:text-slate-400">Standard</p>
               </div>
-              <Badge variant="secondary" className="bg-amber-200 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">Fast</Badge>
+              <Badge variant="secondary" className="bg-slate-200 text-slate-800 dark:bg-slate-900/30 dark:text-slate-300">Fast</Badge>
             </div>
           </CardContent>
         </Card>
