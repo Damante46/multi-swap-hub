@@ -42,8 +42,10 @@ All colors MUST be HSL.
 
     /* Cool trading colors */
     --success: 20 184 166;        /* Teal for gains */
+    --success-foreground: 255 255 255; /* White text on teal */
     --success-light: 204 251 241; /* Light teal background */
     --warning: 59 130 246;        /* Blue for warnings */
+    --warning-foreground: 255 255 255; /* White text on blue */
     --info: 34 211 238;          /* Light cyan for info */
     --profit: 20 184 166;        /* Teal for profit */
     --loss: 239 68 68;           /* Red for loss */
@@ -116,8 +118,10 @@ All colors MUST be HSL.
 
     /* Trading colors optimized for dark mode */
     --success: 52 211 153;        /* Bright green */
+    --success-foreground: 15 23 42; /* Dark text on bright green */
     --success-light: 6 78 59;     /* Dark green background */
     --warning: 251 191 36;        /* Bright amber */
+    --warning-foreground: 15 23 42; /* Dark text on bright amber */
     --info: 96 165 250;          /* Bright blue */
     --profit: 52 211 153;        /* Bright emerald */
     --loss: 248 113 113;         /* Bright red */
