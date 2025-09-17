@@ -10,13 +10,13 @@ All colors MUST be HSL.
   :root {
     /* Cool Color System - Blues, Teals, Purples */
     --background: 240 249 255;    /* Ice blue background */
-    --foreground: 8 47 73;        /* Deep blue-gray text */
+    --foreground: 29 78 216;      /* Blue-600 text */
 
     --card: 255 255 255;          /* Pure white cards */
-    --card-foreground: 8 47 73;
+    --card-foreground: 29 78 216;
 
     --popover: 255 255 255;
-    --popover-foreground: 8 47 73;
+    --popover-foreground: 29 78 216;
 
     /* Primary - Cool cyan blue */
     --primary: 6 182 212;         /* Cyan-500 for primary actions */
